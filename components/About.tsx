@@ -24,7 +24,7 @@ export default function About() {
                   className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </button>
-              <figcaption className="absolute -bottom-4 -right-3 bg-cream px-5 py-4 sm:-right-6">
+              <figcaption className="absolute -bottom-4 -right-3 rounded-2xl bg-cream px-5 py-4 sm:-right-6">
                 <p className="font-display text-3xl leading-none text-ink">{years}</p>
                 <p className="mt-1 text-[0.65rem] uppercase tracking-[0.2em] text-ink/70">
                   Jahre Erfahrung
@@ -41,7 +41,11 @@ export default function About() {
               Inhaberin &middot; gelernte MPA &middot; MPL4-Spezialistin
             </p>
 
-            <div className="mt-7 text-sand" data-text-reveal>
+            <div
+              className="mt-7 text-sand leading-relaxed"
+              style={{ fontSize: "clamp(1.1rem, 1rem + 0.55vw, 1.4rem)" }}
+              data-text-reveal
+            >
               <p data-reveal="up">
                 Als gelernte medizinische Praxisassistentin habe ich viele Jahre mit
                 Leidenschaft im Gesundheitsbereich gearbeitet, unter anderem in

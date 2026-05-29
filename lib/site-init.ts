@@ -56,11 +56,15 @@ export function initSite(): () => void {
     const elHeight = rect.height;
     const vh = window.innerHeight;
 
-    const fits = elHeight + 80 < vh;
-    const targetY = Math.max(
-      0,
-      fits ? elTop - (vh - elHeight) / 2 : elTop - vh * 0.12
-    );
+    // Sektion möglichst vollständig & vertikal zentriert zeigen. Da die
+    // Sektionen grosszügiges py-Padding haben, wird bei höheren Sektionen in
+    // dieses Padding hineingescrollt, sodass auch der untere Teil sichtbar wird.
+    // Schutz-Klammer: nie über den Inhaltsbeginn hinaus scrollen, damit die
+    // Überschrift auch bei sehr hohen Sektionen sichtbar bleibt.
+    const padTop = parseFloat(getComputedStyle(el as HTMLElement).paddingTop) || 0;
+    const centeredY = elTop - (vh - elHeight) / 2;
+    const maxIntoSection = elTop + Math.max(0, padTop - 24);
+    const targetY = Math.max(0, Math.min(centeredY, maxIntoSection));
 
     if (lenis) {
       lenis.scrollTo(targetY, { duration: 1.2 });
