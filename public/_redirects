@@ -1,0 +1,28 @@
+# Cloudflare Pages – Weiterleitungen der alten Wix-Pfade auf den neuen One-Pager
+# Format: <von>  <nach>  <status>
+
+/mpl4-technologie        /#technologie    301
+/mpl4                    /#technologie    301
+/technologie             /#technologie    301
+
+/angebot-preise          /#preise         301
+/angebot                 /#preise         301
+/preise                  /#preise         301
+
+/fusspflege              /#behandlungen   301
+/behandlungen            /#behandlungen   301
+
+/%C3%BCber-mich          /#ueber-mich     301
+/über-mich               /#ueber-mich     301
+/ueber-mich              /#ueber-mich     301
+/about                   /#ueber-mich     301
+
+/kontakt-termine         /#kontakt        301
+/kontakt                 /#kontakt        301
+/termine                 /#kontakt        301
+
+/feedback-referenzen     /#ergebnisse     301
+/referenzen              /#ergebnisse     301
+/ergebnisse              /#ergebnisse     301
+
+/home                    /                301

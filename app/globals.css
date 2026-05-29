@@ -1,0 +1,1148 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Schoch Cosmetic – Design System
+   "Warm Editorial Spa-Luxus": warmes Creme, gebranntes Terrakotta-
+   Orange, espresso-warmer Text. Cormorant (Display) + Hanken Grotesk.
+   ============================================================ */
+
+@theme {
+  /* — Warme Creme-Basis (Ivory mit leichtem Warmstich) — */
+  --color-ink: #f7f0e3;       /* Seitenhintergrund (warmes Creme) */
+  --color-night: #f0e7d6;     /* alternative, etwas tiefere Fläche */
+  --color-espresso: #fffbf3;  /* Kartenfläche (warmes Near-White) */
+  --color-cocoa: #e7dac4;     /* helle Spur / Track */
+  --color-line: #e9ddc8;      /* zarte Trennlinie / Rahmen */
+
+  /* — Text (warmes Espresso-Braun statt Schwarz) — */
+  --color-cream: #2a211a;     /* Primärtext / Headlines */
+  --color-sand: #675a4a;      /* Sekundärtext (AA auf Creme) */
+  --color-mist: #74654d;      /* gedämpfter Text – WCAG AA (≥4.5:1) auf Creme,
+                                 Karten- und Footer-Flächen */
+
+  /* — Terrakotta-/Orange-Akzent (Variablennamen bleiben „gold“) — */
+  --color-gold: #ec7a1c;        /* sattes Terrakotta-Orange: Flächen, Linien, Icons, Verläufe, Hero */
+  --color-gold-strong: #c95812; /* heller, vivider Akzent: kleine Texte, Preise, Eyebrows, Fokus */
+  --color-gold-bright: #f9892b; /* etwas heller & vivider: Akzent auf dunklen Flächen (Hero, Spektralbalken) */
+  --color-gold-deep: #c25d11;   /* tieferes, satteres Orange für Hover / Verlauf-Tiefe */
+
+  /* — warmes Pfirsich/Clay (dekorativ) — */
+  --color-rose: #c06a3a;
+  --color-rose-soft: #e7c2a0;
+
+  /* — Typografie (editorial: Cormorant Display-Serif + Hanken Grotesk Body) — */
+  --font-display: "Cormorant Variable", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: "Hanken Grotesk Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* — Fluid Display Sizes (Cormorant liest kleiner → grosszügiger skaliert) — */
+  --text-eyebrow: 0.72rem;
+  --text-display: clamp(2.9rem, 1.35rem + 6.2vw, 7rem);
+  --text-h2: clamp(2.15rem, 1.3rem + 3.4vw, 4rem);
+  --text-h3: clamp(1.5rem, 1.1rem + 1.5vw, 2.2rem);
+  --text-lead: clamp(1.05rem, 0.95rem + 0.5vw, 1.35rem);
+
+  /* — Motion — */
+  --ease-luxe: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* — Layout — */
+  --spacing-gutter: clamp(1.25rem, 0.5rem + 3vw, 5rem);
+}
+
+/* ------------------------------------------------------------ */
+/* Base                                                          */
+/* ------------------------------------------------------------ */
+@layer base {
+  :root {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+    /* Versalziffern überall: Cormorant nutzt sonst Mediävalziffern
+       (Oldstyle mit Unter-/Oberlängen), die wie Handschrift wirken.
+       Vererbt sich auf alle Nachfahren (auch Cormorant-Headlines/Zahlen). */
+    font-variant-numeric: lining-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  /* Lenis smooth-scroll: native smooth-behaviour deaktivieren, sobald JS smooth übernimmt */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-cream);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-strong);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Edel-getönte Scrollbar */
+  ::-webkit-scrollbar {
+    width: 11px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-cocoa);
+    border-radius: 99px;
+    border: 3px solid var(--color-ink);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold-deep);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+  h1 {
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ------------------------------------------------------------ */
+/* Components / Utilities                                         */
+/* ------------------------------------------------------------ */
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 84rem;
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--color-sand);
+  }
+
+  /* Editorial-Sektionsindex, z. B. „01 / Technologie“ */
+  .seg-index {
+    font-family: var(--font-sans);
+    font-size: var(--text-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-variant-numeric: lining-nums tabular-nums;
+    color: var(--color-gold-strong);
+  }
+
+  /* Akzent-Wort: cleane Farb-Emphase (ein Akzentton, kein Verlauf, keine Kursive) */
+  .text-gilded {
+    color: var(--color-gold);
+  }
+
+  /* Feines Goldlinie-Divider */
+  .rule-gold {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--color-gold-deep),
+      transparent
+    );
+  }
+
+  /* Buttons: editorial, ruhig, ohne Glow */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.92rem;
+    letter-spacing: 0.005em;
+    border-radius: 999px;
+    padding: 0.92rem 1.7rem;
+    transition: transform 0.45s var(--ease-luxe), background 0.35s var(--ease-soft),
+      color 0.35s var(--ease-soft), border-color 0.35s var(--ease-soft);
+  }
+  /* Primär: voller, warmer Tinten-Block (selbstbewusst statt Gold-Pille) */
+  .btn-gold {
+    background: var(--color-cream);
+    color: var(--color-ink);
+  }
+  .btn-gold:hover {
+    background: var(--color-gold);
+    color: var(--color-cream);
+    transform: translateY(-2px);
+  }
+  .btn-gold:active {
+    transform: translateY(0) scale(0.99);
+  }
+  /* Sekundär: feine Umrandung, Gold-Akzent beim Hover */
+  .btn-ghost {
+    border: 1px solid var(--color-cream);
+    color: var(--color-cream);
+  }
+  .btn-ghost:hover {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    transform: translateY(-2px);
+  }
+
+  /* Animierter Link-Unterstrich */
+  .link-underline {
+    background-image: linear-gradient(var(--color-gold), var(--color-gold));
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.45s var(--ease-luxe);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Header: durchgehend helle, getönte Glas-Bar mit feiner Unterkante.
+     Liegt absolut über dem Hero und scrollt mit dem Inhalt weg (kein Sticky).
+     `.is-scrolled` ist in Nav permanent gesetzt – daher kein State-Wechsel. */
+  [data-header].is-scrolled {
+    background: color-mix(in srgb, var(--color-ink) 94%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-line);
+  }
+  [data-header].is-scrolled .shell {
+    /* Sehr knappe Innenpolsterung – das Logo bestimmt die Bar-Höhe,
+       sitzt mit nur ein paar Pixel Luft komplett innerhalb. */
+    padding-block: 0.35rem;
+  }
+
+  /* Glas-Karte */
+  .card-luxe {
+    background: var(--color-espresso);
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px -34px color-mix(in srgb, #4a3718 38%, transparent);
+  }
+}
+
+/* ------------------------------------------------------------ */
+/* Texturen & Effekte                                            */
+/* ------------------------------------------------------------ */
+
+/* Goldener Smoke-Hintergrund: fixe Ebene hinter allen Inhalten,
+   vor dem Body-Hintergrund. Sehr dezent, rein dekorativ. */
+.smoke-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.42;
+}
+@media (prefers-reduced-motion: reduce) {
+  .smoke-bg {
+    opacity: 0.3;
+  }
+}
+
+/* Feines Film-Korn über der ganzen Seite (kostet 0 Requests) */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.025;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Weiches Gold-Aura-Glühen */
+.aura {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Duotone-Filter: warmes Terrakotta-Sepia statt kühlem Blau-Plum */
+.duotone {
+  filter: grayscale(1) brightness(1.04) contrast(1.02) sepia(0.62)
+    hue-rotate(-12deg) saturate(1.5);
+}
+
+/* ------------------------------------------------------------ */
+/* Scroll-Reveal (GSAP übernimmt; Failsafe inkludiert)           */
+/* ------------------------------------------------------------ */
+html.anim [data-reveal] {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+html.anim [data-reveal="up"] {
+  transform: translateY(56px);
+}
+html.anim [data-reveal="left"] {
+  transform: translateX(-72px);
+}
+html.anim [data-reveal="right"] {
+  transform: translateX(72px);
+}
+html.anim [data-reveal="zoom"] {
+  transform: translateY(44px) scale(0.94);
+}
+html.anim [data-reveal="fade"] {
+  transform: none;
+}
+/* Parallax-Bilder leicht vergrössert, damit beim vertikalen Drift keine
+   Kanten frei werden (GSAP übernimmt anschliessend den scrub-Transform). */
+html.anim [data-parallax] {
+  transform: scale(1.16);
+}
+
+/* ------------------------------------------------------------ */
+/* Keyframe-Animationen                                          */
+/* ------------------------------------------------------------ */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scrollcue {
+  0% { transform: translateY(0); opacity: 0; }
+  35% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+.animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+.scrollcue-dot {
+  animation: scrollcue 2.1s var(--ease-soft) infinite;
+}
+.float-slow {
+  animation: float-slow 9s ease-in-out infinite;
+}
+
+/* ============================================================
+   Komponenten-Styles (zuvor scoped in den .astro-Dateien;
+   die BEM-artigen Klassennamen sind eindeutig → global unbedenklich)
+   ============================================================ */
+
+/* ====================================================================
+   HERO · Scroll-Expand
+   ==================================================================== */
+.xhero {
+  position: relative;
+  background: transparent;
+  --p: 0; /* Fallback; im interaktiven Modus von site-init gesetzt */
+}
+.xhero__pin {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.xhero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.xhero__bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(16px) saturate(1.04);
+  transform: scale(1.18);
+}
+.xhero__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 78% 14%, rgba(247, 136, 42, 0.32), transparent 56%),
+    linear-gradient(180deg, rgba(38, 28, 18, 0.6) 0%, rgba(34, 25, 16, 0.7) 52%, rgba(26, 18, 11, 0.82) 100%);
+}
+.xhero:not(.is-interactive) .xhero__bg {
+  -webkit-mask-image: linear-gradient(to bottom, #000 44%, transparent 67%);
+  mask-image: linear-gradient(to bottom, #000 44%, transparent 67%);
+}
+.xhero__media {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  width: min(620px, 84vw);
+  height: min(58vh, 520px);
+  border-radius: clamp(0.9rem, 0.6rem + 1vw, 1.6rem);
+  box-shadow: 0 26px 52px -42px rgba(40, 28, 12, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.xhero__media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 46% 40%;
+}
+.xhero__media-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(28, 20, 13, 0.42);
+}
+.xhero__titles {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: clamp(1.4rem, 1rem + 2vw, 2.4rem);
+  pointer-events: none;
+}
+.xhero__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: 0;
+  font-size: clamp(3rem, 1.1rem + 8.6vw, 8.4rem);
+  color: #fdf8ef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.02em;
+  text-shadow: 0 6px 44px rgba(20, 13, 6, 0.42);
+  text-wrap: nowrap;
+}
+.xhero__word {
+  display: block;
+  will-change: transform;
+}
+.xhero__accent {
+  color: var(--color-gold-bright);
+}
+.xhero__reveal {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(3.2rem, 8vh, 5.5rem);
+  transform: translateX(-50%);
+  z-index: 5;
+  width: min(960px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.4rem, 1rem + 1.5vw, 2.2rem);
+  text-align: center;
+}
+.xhero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem;
+}
+.xhero__cta {
+  background: var(--color-gold);
+  color: var(--color-cream);
+  box-shadow: 0 16px 34px -20px rgba(196, 110, 42, 0.7);
+}
+.xhero__cta svg {
+  width: 1.05em;
+  height: 1.05em;
+  transition: transform 0.35s var(--ease-luxe);
+}
+.xhero__cta:hover {
+  background: var(--color-gold-deep);
+  transform: translateY(-2px);
+}
+.xhero__cta:hover svg {
+  transform: translateX(3px);
+}
+.xhero__cta:active {
+  transform: translateY(0) scale(0.99);
+}
+.xhero__cta--ghost {
+  background: color-mix(in srgb, var(--color-espresso) 82%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--color-cream);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-cream) 26%, transparent);
+}
+.xhero__cta--ghost:hover {
+  background: var(--color-cream);
+  color: var(--color-espresso);
+  box-shadow: inset 0 0 0 1px var(--color-cream);
+  transform: translateY(-2px);
+}
+.xhero.is-interactive .xhero__bg {
+  opacity: calc(1 - var(--p));
+}
+.xhero.is-interactive .xhero__media {
+  width: calc(300px + var(--p) * (min(1180px, 94vw) - 300px));
+  height: calc(400px + var(--p) * (min(86vh, 760px) - 400px));
+  max-width: 95vw;
+  max-height: 86vh;
+  border-radius: calc((1 - var(--p)) * clamp(0.9rem, 0.6rem + 1vw, 1.6rem));
+}
+.xhero.is-interactive .xhero__media-tint {
+  opacity: calc(1 - var(--p));
+}
+.xhero.is-interactive .xhero__word--l {
+  transform: translateX(calc(var(--p) * -95vw));
+}
+.xhero.is-interactive .xhero__word--r {
+  transform: translateX(calc(var(--p) * 95vw));
+}
+.xhero.is-interactive .xhero__reveal {
+  opacity: calc((var(--p) - 0.7) * 3.4);
+  pointer-events: none;
+}
+.xhero.is-interactive.is-expanded .xhero__reveal {
+  pointer-events: auto;
+}
+@media (min-width: 1024px) {
+  .xhero__reveal {
+    bottom: clamp(5rem, 13vh, 10rem);
+    gap: 1.9rem;
+  }
+  .xhero__actions {
+    gap: 1.1rem;
+  }
+  .xhero__cta {
+    padding: 1.15rem 2.3rem;
+    font-size: 1.05rem;
+  }
+}
+@media (max-width: 1023px) {
+  .xhero__title {
+    text-wrap: balance;
+    font-size: clamp(2.6rem, 1.2rem + 9vw, 4.4rem);
+  }
+  .xhero__media {
+    width: min(560px, 86vw);
+    height: min(62vh, 480px);
+  }
+  .xhero.is-interactive .xhero__media {
+    width: calc(76vw + var(--p) * (100vw - 76vw));
+    height: calc(44vh + var(--p) * (90vh - 44vh));
+    max-width: 100vw;
+    max-height: 90vh;
+    border-radius: calc((1 - var(--p)) * 1.1rem);
+  }
+}
+
+/* ====================================================================
+   HeroStats (Vertrauens-Leiste)
+   ==================================================================== */
+.hstats__num {
+  font-size: clamp(2.4rem, 1.6rem + 3.6vw, 4.2rem);
+  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.hstats__label {
+  font-size: clamp(0.6rem, 0.55rem + 0.3vw, 0.72rem);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+/* ====================================================================
+   TreatmentsPricing
+   ==================================================================== */
+.tcol__media {
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 30px 60px -44px rgba(40, 28, 12, 0.5);
+}
+.tcol__img {
+  display: block;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease-luxe);
+}
+.tcol__media:hover .tcol__img {
+  transform: scale(1.04);
+}
+.sspecial {
+  display: flex;
+  justify-content: center;
+}
+.sspecial__inner {
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  padding: clamp(1.8rem, 1.4rem + 1.2vw, 2.5rem) clamp(1.4rem, 1rem + 1.2vw, 2rem);
+  border-radius: 26px;
+  text-align: center;
+  background: color-mix(in srgb, var(--color-gold) 9%, var(--color-espresso));
+  border: 1px solid color-mix(in srgb, var(--color-gold) 32%, var(--color-line));
+  box-shadow: 0 26px 56px -44px rgba(196, 110, 42, 0.55);
+}
+.sspecial__badge {
+  display: inline-block;
+  padding: 0.55rem 1.2rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-gold) 48%, var(--color-line));
+  color: var(--color-gold-strong);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.sspecial__title {
+  margin-top: 1.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 1.4rem + 0.9vw, 2.05rem);
+  line-height: 1.1;
+  color: var(--color-cream);
+}
+.sspecial__desc {
+  margin-top: 0.9rem;
+  font-size: 0.96rem;
+  line-height: 1.55;
+  color: var(--color-sand);
+}
+.sspecial__price {
+  margin-top: 1.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+.sspecial__num {
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 2.8rem + 1.6vw, 4.4rem);
+  line-height: 0.9;
+  color: var(--color-gold-bright);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.sspecial__currency {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+.sspecial__chf {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-sand);
+}
+.sspecial__strike {
+  margin-top: 0.2rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--color-mist);
+  text-decoration-thickness: 1px;
+}
+.sspecial__cta {
+  margin-top: 1.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.92rem 1.7rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--color-cream);
+  color: var(--color-cream);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  transition:
+    transform 0.45s var(--ease-luxe),
+    background 0.35s var(--ease-soft),
+    color 0.35s var(--ease-soft),
+    border-color 0.35s var(--ease-soft);
+}
+.sspecial__cta:hover {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  transform: translateY(-2px);
+}
+.sspecial__validity {
+  margin-top: 1.2rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-mist);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sspecial__cta {
+    transition: none;
+  }
+  .sspecial__cta:hover {
+    transform: none;
+  }
+}
+.bplan {
+  background: color-mix(in srgb, var(--color-gold) 9%, var(--color-espresso));
+  border: 1px solid color-mix(in srgb, var(--color-gold) 32%, var(--color-line));
+  box-shadow: 0 26px 56px -44px rgba(196, 110, 42, 0.55);
+  transition:
+    transform 0.5s var(--ease-luxe),
+    border-color 0.4s var(--ease-soft),
+    box-shadow 0.4s var(--ease-soft);
+}
+.bplan:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--color-gold) 60%, var(--color-line));
+  box-shadow: 0 34px 66px -40px rgba(196, 110, 42, 0.6);
+}
+.bplan__ico {
+  display: grid;
+  place-items: center;
+  height: 3.25rem;
+  width: 3.25rem;
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--color-gold) 18%, transparent);
+  color: var(--color-gold-strong);
+}
+.bplan__ico svg {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+.bplan__arrow {
+  transition: transform 0.4s var(--ease-luxe);
+}
+.bplan:hover .bplan__arrow {
+  transform: translateX(4px);
+}
+.pcar__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.pcar__lead {
+  margin-top: 0.7rem;
+  color: var(--color-sand);
+  font-size: var(--text-lead);
+}
+.pcar__nav {
+  display: none;
+  flex-shrink: 0;
+  gap: 0.6rem;
+}
+.pcar__btn {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  background: var(--color-espresso);
+  color: var(--color-cream);
+  cursor: pointer;
+  transition:
+    transform 0.4s var(--ease-luxe),
+    color 0.35s var(--ease-soft),
+    border-color 0.35s var(--ease-soft),
+    opacity 0.35s var(--ease-soft);
+}
+.pcar__btn svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.pcar__btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  color: var(--color-gold-strong);
+  border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-line));
+}
+.pcar__btn:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+.pcar__track {
+  display: flex;
+  gap: clamp(1rem, 1.6vw, 1.5rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--spacing-gutter);
+  margin-inline: calc(-1 * var(--spacing-gutter));
+  padding-inline: var(--spacing-gutter);
+  padding-block: 1.75rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pcar__track::-webkit-scrollbar {
+  display: none;
+}
+.pcar__track:focus-visible {
+  outline: 2px solid var(--color-gold-strong);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+.pcar__card {
+  flex: 0 0 auto;
+  width: min(82vw, 340px);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  padding: 1.9rem 1.7rem;
+  border-radius: 22px;
+}
+.pcar__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 1.2rem + 1vw, 1.95rem);
+  line-height: 1.08;
+  color: var(--color-cream);
+}
+.pcar__rule {
+  display: block;
+  margin-top: 0.85rem;
+  height: 2px;
+  width: 2.6rem;
+  border-radius: 999px;
+  background: var(--color-gold);
+}
+.pcar__list {
+  margin-top: 1.6rem;
+  display: flex;
+  flex-direction: column;
+}
+.pcar__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.72rem 0;
+  border-top: 1px solid var(--color-line);
+}
+.pcar__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.pcar__row dt {
+  color: var(--color-cream);
+  font-size: 0.96rem;
+}
+.pcar__row dd {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--color-gold-bright);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.pcar__foot {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+.pcar__progress {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--color-line);
+  overflow: hidden;
+}
+.pcar__progress span {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 25%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-deep));
+  will-change: transform;
+}
+.pcar__hint {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-mist);
+}
+@media (min-width: 768px) {
+  .pcar__nav {
+    display: flex;
+  }
+  .pcar__card {
+    width: clamp(300px, 29vw, 358px);
+    padding: 2.3rem 2.1rem;
+    min-height: 22.5rem;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .pcar__track {
+    cursor: grab;
+    scroll-snap-type: none;
+  }
+  .pcar__track.is-grabbing {
+    cursor: grabbing;
+  }
+  .pcar__card {
+    transition:
+      transform 0.5s var(--ease-luxe),
+      border-color 0.4s var(--ease-soft),
+      box-shadow 0.4s var(--ease-soft);
+  }
+  .pcar__card:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-line));
+    box-shadow: 0 34px 64px -42px color-mix(in srgb, var(--color-gold-deep) 60%, transparent);
+  }
+  .pcar__track.is-grabbing .pcar__card:hover {
+    transform: none;
+  }
+}
+.pcar.is-static .pcar__nav,
+.pcar.is-static .pcar__foot {
+  display: none;
+}
+.pcar.is-static .pcar__track {
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pcar__card,
+  .pcar__btn,
+  .pcar__progress span,
+  .tcol__img,
+  .bplan {
+    transition: none;
+  }
+  .pcar__card:hover,
+  .tcol__media:hover .tcol__img,
+  .bplan:hover {
+    transform: none;
+  }
+  .pcar__track {
+    scroll-behavior: auto;
+  }
+}
+
+/* ====================================================================
+   PhotoGallery (Fächer / Snap-Scroller)
+   ==================================================================== */
+.pg-track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin-inline: calc(-1 * var(--spacing-gutter));
+  padding-inline: var(--spacing-gutter);
+  padding-block: 0.75rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.pg-track::-webkit-scrollbar {
+  display: none;
+}
+.pg-card {
+  flex: 0 0 auto;
+  width: min(74vw, 300px);
+  scroll-snap-align: center;
+}
+.pg-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 24px;
+  box-shadow:
+    0 28px 55px -28px rgba(40, 28, 12, 0.5),
+    0 10px 24px -16px rgba(40, 28, 12, 0.35);
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pg-hint {
+  display: none;
+}
+@media (min-width: 768px) {
+  .pg-track.is-fan {
+    display: block;
+    overflow: visible;
+    height: var(--pg-stage-h, 380px);
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 0;
+    scroll-snap-type: none;
+  }
+  .pg-track.is-fan.pg-pending {
+    opacity: 0;
+  }
+  .pg-track.is-fan .pg-card {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: clamp(190px, 19vw, 250px);
+    cursor: grab;
+    will-change: transform;
+  }
+  .pg-track.is-fan .pg-card.is-grabbing {
+    cursor: grabbing;
+  }
+  .pg-track.is-fan .pg-img {
+    box-shadow:
+      0 36px 70px -30px rgba(40, 28, 12, 0.6),
+      0 14px 30px -18px rgba(40, 28, 12, 0.4);
+  }
+}
+
+/* ====================================================================
+   Behandlungsplan (Unterseite)
+   ==================================================================== */
+.plan-ico {
+  display: grid;
+  place-items: center;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--color-gold) 16%, transparent);
+  color: var(--color-gold-strong);
+}
+.plan-ico svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+.plan-ico--lg {
+  height: 2.6rem;
+  width: 2.6rem;
+  border-radius: 0.8rem;
+}
+.plan-ico--lg svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+.planpill {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  background: var(--color-espresso);
+  color: var(--color-sand);
+  cursor: pointer;
+  transition:
+    color 0.3s var(--ease-soft),
+    background 0.3s var(--ease-soft),
+    border-color 0.3s var(--ease-soft),
+    transform 0.3s var(--ease-luxe);
+}
+.planpill:hover {
+  color: var(--color-cream);
+  border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-line));
+}
+.planpill.is-active {
+  background: var(--color-gold-strong);
+  border-color: transparent;
+  color: #fdf8ef;
+}
+.plan-card {
+  transition:
+    transform 0.5s var(--ease-luxe),
+    border-color 0.4s var(--ease-soft),
+    box-shadow 0.4s var(--ease-soft);
+}
+.plan-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--color-gold) 50%, var(--color-line));
+  box-shadow: 0 30px 60px -38px color-mix(in srgb, var(--color-gold-deep) 55%, transparent);
+}
+[data-zone][hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plan-card,
+  .planpill {
+    transition: none;
+  }
+  .plan-card:hover {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------ */
+/* Reduced Motion: alles ruhig & sofort sichtbar                 */
+/* ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  html.anim [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .float-slow,
+  .animate-marquee {
+    animation: none !important;
+  }
+}
