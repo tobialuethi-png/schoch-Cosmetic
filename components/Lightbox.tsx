@@ -20,9 +20,9 @@ export default function Lightbox() {
       </button>
 
       <figure className="max-h-[88vh] max-w-5xl">
+        {/* src/alt werden beim Öffnen per site-init gesetzt (data-lightbox-img). */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src=""
           alt=""
           className="max-h-[80vh] w-auto rounded-xl border border-line object-contain"
           data-lightbox-img

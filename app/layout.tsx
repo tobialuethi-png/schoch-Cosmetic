@@ -111,7 +111,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de" className="grain">
+    <html lang="de" className="grain" suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: animGate }} />
 
