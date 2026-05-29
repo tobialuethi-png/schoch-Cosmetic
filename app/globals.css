@@ -528,9 +528,9 @@ html.anim [data-parallax] {
 }
 .xhero.is-interactive .xhero__media {
   width: calc(300px + var(--p) * (min(1180px, 94vw) - 300px));
-  height: calc(400px + var(--p) * (min(86vh, 760px) - 400px));
+  height: calc(400px + var(--p) * (min(74vh, 660px) - 400px));
   max-width: 95vw;
-  max-height: 86vh;
+  max-height: 74vh;
   border-radius: calc((1 - var(--p)) * clamp(0.9rem, 0.6rem + 1vw, 1.6rem));
 }
 .xhero.is-interactive .xhero__media-tint {
@@ -569,7 +569,7 @@ html.anim .xhero:not(.is-interactive) .xhero__reveal {
 }
 @media (min-width: 1024px) {
   .xhero__reveal {
-    bottom: clamp(5rem, 13vh, 10rem);
+    bottom: clamp(2.25rem, 6vh, 4rem);
     gap: 1.9rem;
   }
   .xhero__actions {
