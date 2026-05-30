@@ -152,6 +152,11 @@ export function initSite(): () => void {
       return;
     }
 
+    // Auf Mobile die pro-Frame teuren Scroll-Scrub-Effekte (Parallax,
+    // Wort-Farb-Reveal) auslassen. Sie blockieren auf schwaecheren GPUs den
+    // Main-Thread und lassen dadurch auch die Einflieg-Animationen ruckeln.
+    const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+
     const heroMM = gsap.matchMedia();
     heroMM.add("(prefers-reduced-motion: no-preference)", () => {
       const xhero = document.querySelector<HTMLElement>("[data-xhero]");
@@ -206,6 +211,9 @@ export function initSite(): () => void {
         duration: 1.05,
         ease: "power3.out",
         scrollTrigger: { trigger: el, start: "top 85%" },
+        onStart: () => {
+          el.style.willChange = "transform, opacity";
+        },
         onComplete: () => {
           el.style.willChange = "auto";
         },
@@ -227,6 +235,8 @@ export function initSite(): () => void {
           ease: "power3.out",
           stagger: 0.1,
           scrollTrigger: { trigger: group, start: "top 82%" },
+          onStart: () =>
+            items.forEach((i) => (i.style.willChange = "transform, opacity")),
           onComplete: () => items.forEach((i) => (i.style.willChange = "auto")),
         }
       );
@@ -290,7 +300,10 @@ export function initSite(): () => void {
       });
     }
 
-    if (!reduceMotion) {
+    // Wort-fuer-Wort Farb-Reveal nur auf Desktop: animiert pro Frame die
+    // `color` vieler Spans (Repaint, nicht GPU-beschleunigt) und ruckelt auf
+    // Mobile. Dort uebernimmt der Absatz-Fly-in (data-reveal) das Reveal.
+    if (!isMobile) {
       document
         .querySelectorAll<HTMLElement>("[data-text-reveal]")
         .forEach((rootEl) => {
@@ -368,24 +381,28 @@ export function initSite(): () => void {
       });
     }
 
-    gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
-      gsap.fromTo(
-        el,
-        { yPercent: -5, scale: 1.16 },
-        {
-          yPercent: 5,
-          scale: 1.16,
-          ease: "none",
-          scrollTrigger: {
-            trigger: el.closest("figure") || el,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        }
-      );
-    });
+    // Parallax-Scrub nur auf Desktop. Auf Mobile bleibt das Bild statisch
+    // leicht gezoomt (scale(1.16) via CSS) – kein pro-Frame-Transform.
+    if (!isMobile) {
+      gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { yPercent: -5, scale: 1.16 },
+          {
+            yPercent: 5,
+            scale: 1.16,
+            ease: "none",
+            scrollTrigger: {
+              trigger: el.closest("figure") || el,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      });
+    }
 
     ScrollTrigger.refresh();
 

@@ -316,7 +316,6 @@
 /* ------------------------------------------------------------ */
 html.anim [data-reveal] {
   opacity: 0;
-  will-change: transform, opacity;
 }
 html.anim [data-reveal="up"] {
   transform: translateY(56px);
@@ -401,7 +400,9 @@ html.anim [data-parallax] {
   object-fit: cover;
   object-position: center;
   filter: blur(16px) saturate(1.04);
-  transform: scale(1.18);
+  /* translateZ(0) haelt das geblurrte Bild als eigene, stabile GPU-Ebene,
+     sodass das Opacity-Fading beim Scrollen den teuren Blur nicht neu rastert. */
+  transform: scale(1.18) translateZ(0);
 }
 .xhero__veil {
   position: absolute;
@@ -579,6 +580,11 @@ html.anim .xhero:not(.is-interactive) .xhero__reveal {
     padding: 1.15rem 2.3rem;
     font-size: 1.05rem;
   }
+  /* Desktop: expandiertes Hero-Bild behaelt abgerundete Ecken (statt
+     auf 0 zu animieren), damit es im Vollbild nicht kantig wirkt. */
+  .xhero.is-interactive .xhero__media {
+    border-radius: clamp(1.1rem, 0.7rem + 0.9vw, 1.75rem);
+  }
 }
 @media (max-width: 1023px) {
   .xhero__title {
@@ -589,17 +595,33 @@ html.anim .xhero:not(.is-interactive) .xhero__reveal {
     width: min(560px, 86vw);
     height: min(62vh, 480px);
   }
+  /* Mobile: guenstigerer Blur-Radius (16px ueber den vollen Viewport ist auf
+     Handy-GPUs teuer und kostet beim Opacity-Fade Frames). */
+  .xhero__bg-img {
+    filter: blur(10px) saturate(1.04);
+  }
+  /* Mobile: Wachstum ueber transform: scale() statt width/height, damit pro
+     Scroll-Frame nur GPU-Compositing (kein Reflow/Repaint) anfaellt. Die Box
+     liegt fix in Endgroesse (konstantes Seitenverhaeltnis -> object-fit cover
+     bleibt verzerrungsfrei) und wird von 0.62 auf 1 skaliert. */
   .xhero.is-interactive .xhero__media {
-    width: calc(76vw + var(--p) * (100vw - 76vw));
-    height: calc(44vh + var(--p) * (90vh - 44vh));
+    width: 100vw;
+    height: 90vh;
     max-width: 100vw;
     max-height: 90vh;
-    border-radius: calc((1 - var(--p)) * 1.1rem);
+    border-radius: calc((1 - var(--p)) * 1.8rem);
+    transform: scale(calc(0.62 + var(--p) * 0.38)) translateZ(0);
+    transform-origin: center center;
+    will-change: transform;
+    backface-visibility: hidden;
   }
-  /* FOUC-Schutz (mobil): Startgroesse der Karte vor is-interactive */
+  /* FOUC-Schutz (mobil): Startzustand der Karte vor is-interactive (= scale 0.62) */
   html.anim .xhero:not(.is-interactive) .xhero__media {
-    width: 76vw;
-    height: 44vh;
+    width: 100vw;
+    height: 90vh;
+    border-radius: 1.8rem;
+    transform: scale(0.62) translateZ(0);
+    transform-origin: center center;
   }
 }
 
