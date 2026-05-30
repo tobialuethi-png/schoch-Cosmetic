@@ -339,6 +339,50 @@ html.anim [data-parallax] {
 }
 
 /* ------------------------------------------------------------ */
+/* MOBILE Scroll-Reveals · CSS-Transition statt GSAP-Tween       */
+/* IntersectionObserver (site-init) setzt .is-inview; die         */
+/* Bewegung laeuft als Transition auf transform/opacity ->        */
+/* Compositor, keine JS-Arbeit pro Frame -> kein Scroll-Jank.     */
+/* ------------------------------------------------------------ */
+@media (max-width: 1023px) {
+  html.anim [data-reveal] {
+    transition:
+      opacity 0.7s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1)),
+      transform 0.7s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  html.anim [data-reveal].is-inview {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Stagger-Items & Kennzahlen: Initialzustand hier setzen (GSAP macht das
+     auf Mobile nicht mehr), Bewegung ebenfalls als Transition. */
+  html.anim [data-stagger-item],
+  html.anim [data-stats] [data-stat] {
+    opacity: 0;
+    transform: translateY(46px);
+    transition:
+      opacity 0.7s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1)),
+      transform 0.7s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  html.anim [data-stagger-item].is-inview,
+  html.anim [data-stats] [data-stat].is-inview {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Spektrum-Balken: Fuellung via transform: scaleX (Compositor) statt width. */
+  html.anim [data-bar] {
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 1.1s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  html.anim [data-bar].is-inview {
+    transform: scaleX(1);
+  }
+}
+
+/* ------------------------------------------------------------ */
 /* Keyframe-Animationen                                          */
 /* ------------------------------------------------------------ */
 @keyframes marquee {

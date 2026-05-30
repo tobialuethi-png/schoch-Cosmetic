@@ -217,115 +217,125 @@ export function initSite(): () => void {
       }
     }
 
-    const reveals = gsap.utils.toArray<HTMLElement>(
-      "[data-reveal]:not(#top [data-reveal]):not([data-stat]):not([data-stagger-item])"
-    );
-    reveals.forEach((el) => {
-      const dir = el.getAttribute("data-reveal") || "up";
-      const from: gsap.TweenVars = { autoAlpha: 0 };
-      if (dir === "left") from.x = -80;
-      else if (dir === "right") from.x = 80;
-      else if (dir === "zoom") {
-        from.y = 52;
-        from.scale = 0.9;
-      } else if (dir !== "fade") {
-        from.y = 64;
-      }
-      gsap.fromTo(el, from, {
-        autoAlpha: 1,
-        x: 0,
-        y: 0,
-        scale: 1,
-        duration: 1.05,
-        ease: "power3.out",
-        scrollTrigger: { trigger: el, start: "top 85%" },
-        onStart: () => {
-          el.style.willChange = "transform, opacity";
-        },
+    // Kennzahlen-Count-up (in beiden Pfaden genutzt).
+    const currentYear = new Date().getFullYear();
+    const countUp = (el: HTMLElement, delay: number) => {
+      const finalText = (el.textContent || "").trim();
+      const grp = finalText.match(/\d+/g);
+      if (!grp) return;
+      const nums = grp.map((n) => parseInt(n, 10));
+      const isYear = /^\d{4}$/.test(finalText);
+      const render = (p: number) => {
+        if (isYear) {
+          el.textContent = String(
+            Math.round(currentYear + (nums[0] - currentYear) * p)
+          );
+        } else {
+          let i = 0;
+          el.textContent = finalText.replace(/\d+/g, () =>
+            String(Math.round(nums[i++] * p))
+          );
+        }
+      };
+      render(0);
+      const obj = { p: 0 };
+      gsap.to(obj, {
+        p: 1,
+        duration: isYear ? 3.2 : 2.4,
+        delay,
+        ease: "power2.out",
+        onUpdate: () => render(obj.p),
         onComplete: () => {
-          el.style.willChange = "auto";
+          el.textContent = finalText;
         },
       });
-    });
+    };
 
-    gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((group) => {
-      const items = Array.from(
-        group.querySelectorAll<HTMLElement>("[data-stagger-item]")
-      );
-      if (!items.length) return;
-      gsap.fromTo(
-        items,
-        { autoAlpha: 0, y: 56 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-          stagger: 0.1,
-          scrollTrigger: { trigger: group, start: "top 82%" },
-          onStart: () =>
-            items.forEach((i) => (i.style.willChange = "transform, opacity")),
-          onComplete: () => items.forEach((i) => (i.style.willChange = "auto")),
-        }
-      );
-    });
-
-    const statItems = gsap.utils.toArray<HTMLElement>("[data-stats] [data-stat]");
     const statValues = gsap.utils.toArray<HTMLElement>("[data-stats] dt");
-    if (statItems.length) {
-      gsap.fromTo(
-        statItems,
-        { opacity: 0, y: 38, scale: 0.92 },
-        {
-          opacity: 1,
+
+    // Mobile: Einblendungen laufen als CSS-Transition (Compositor), ausgeloest
+    // per IntersectionObserver (feuert einmal, setzt .is-inview). KEIN GSAP-
+    // Tween/ScrollTrigger pro Element -> keine JS-Arbeit pro Frame beim
+    // Scrollen -> kein Jank. Desktop: wie gehabt per GSAP-ScrollTrigger.
+    if (isMobile) {
+      initMobileReveals(countUp, statValues);
+    } else {
+      const reveals = gsap.utils.toArray<HTMLElement>(
+        "[data-reveal]:not(#top [data-reveal]):not([data-stat]):not([data-stagger-item])"
+      );
+      reveals.forEach((el) => {
+        const dir = el.getAttribute("data-reveal") || "up";
+        const from: gsap.TweenVars = { autoAlpha: 0 };
+        if (dir === "left") from.x = -80;
+        else if (dir === "right") from.x = 80;
+        else if (dir === "zoom") {
+          from.y = 52;
+          from.scale = 0.9;
+        } else if (dir !== "fade") {
+          from.y = 64;
+        }
+        gsap.fromTo(el, from, {
+          autoAlpha: 1,
+          x: 0,
           y: 0,
           scale: 1,
-          duration: 1.1,
-          stagger: 0.2,
-          ease: "back.out(1.5)",
-          scrollTrigger: { trigger: "[data-stats]", start: "top 82%", once: true },
-        }
-      );
-
-      const currentYear = new Date().getFullYear();
-      const countUp = (el: HTMLElement, delay: number) => {
-        const finalText = (el.textContent || "").trim();
-        const groups = finalText.match(/\d+/g);
-        if (!groups) return;
-        const nums = groups.map((n) => parseInt(n, 10));
-        const isYear = /^\d{4}$/.test(finalText);
-        const render = (p: number) => {
-          if (isYear) {
-            el.textContent = String(
-              Math.round(currentYear + (nums[0] - currentYear) * p)
-            );
-          } else {
-            let i = 0;
-            el.textContent = finalText.replace(/\d+/g, () =>
-              String(Math.round(nums[i++] * p))
-            );
-          }
-        };
-        render(0);
-        const obj = { p: 0 };
-        gsap.to(obj, {
-          p: 1,
-          duration: isYear ? 3.2 : 2.4,
-          delay,
-          ease: "power2.out",
-          onUpdate: () => render(obj.p),
+          duration: 1.05,
+          ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 85%" },
+          onStart: () => {
+            el.style.willChange = "transform, opacity";
+          },
           onComplete: () => {
-            el.textContent = finalText;
+            el.style.willChange = "auto";
           },
         });
-      };
-
-      ScrollTrigger.create({
-        trigger: "[data-stats]",
-        start: "top 82%",
-        once: true,
-        onEnter: () => statValues.forEach((el, i) => countUp(el, i * 0.2)),
       });
+
+      gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((group) => {
+        const items = Array.from(
+          group.querySelectorAll<HTMLElement>("[data-stagger-item]")
+        );
+        if (!items.length) return;
+        gsap.fromTo(
+          items,
+          { autoAlpha: 0, y: 56 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+            stagger: 0.1,
+            scrollTrigger: { trigger: group, start: "top 82%" },
+            onStart: () =>
+              items.forEach((i) => (i.style.willChange = "transform, opacity")),
+            onComplete: () => items.forEach((i) => (i.style.willChange = "auto")),
+          }
+        );
+      });
+
+      const statItems = gsap.utils.toArray<HTMLElement>("[data-stats] [data-stat]");
+      if (statItems.length) {
+        gsap.fromTo(
+          statItems,
+          { opacity: 0, y: 38, scale: 0.92 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.1,
+            stagger: 0.2,
+            ease: "back.out(1.5)",
+            scrollTrigger: { trigger: "[data-stats]", start: "top 82%", once: true },
+          }
+        );
+
+        ScrollTrigger.create({
+          trigger: "[data-stats]",
+          start: "top 82%",
+          once: true,
+          onEnter: () => statValues.forEach((el, i) => countUp(el, i * 0.2)),
+        });
+      }
     }
 
     // Wort-fuer-Wort Farb-Reveal nur auf Desktop: animiert pro Frame die
@@ -392,21 +402,25 @@ export function initSite(): () => void {
         });
     }
 
-    const bars = gsap.utils.toArray<HTMLElement>("[data-bar]");
-    if (bars.length) {
-      bars.forEach((bar) => {
-        const target = bar.style.width || "100%";
-        gsap.fromTo(
-          bar,
-          { width: "0%" },
-          {
-            width: target,
-            duration: 1.4,
-            ease: "power3.out",
-            scrollTrigger: { trigger: "[data-spectrum]", start: "top 80%" },
-          }
-        );
-      });
+    // Spektrum-Balken: Desktop per GSAP (width). Mobile uebernimmt der
+    // IntersectionObserver + CSS (transform: scaleX -> Compositor).
+    if (!isMobile) {
+      const bars = gsap.utils.toArray<HTMLElement>("[data-bar]");
+      if (bars.length) {
+        bars.forEach((bar) => {
+          const target = bar.style.width || "100%";
+          gsap.fromTo(
+            bar,
+            { width: "0%" },
+            {
+              width: target,
+              duration: 1.4,
+              ease: "power3.out",
+              scrollTrigger: { trigger: "[data-spectrum]", start: "top 80%" },
+            }
+          );
+        });
+      }
     }
 
     // Parallax-Scrub nur auf Desktop. Auf Mobile bleibt das Bild statisch
@@ -438,6 +452,93 @@ export function initSite(): () => void {
     const onLoad = () => ScrollTrigger.refresh();
     window.addEventListener("load", onLoad, { once: true });
     cleanups.push(() => window.removeEventListener("load", onLoad));
+
+    // ---- Mobile-Reveals: IntersectionObserver + CSS-Transition ----
+    // Eine Klasse pro Element (einmalig), die eigentliche Bewegung macht CSS
+    // auf dem Compositor (siehe globals.css). Funktions-Deklaration -> wird
+    // gehoisted, daher oben im isMobile-Zweig bereits aufrufbar.
+    function initMobileReveals(
+      runCountUp: (el: HTMLElement, delay: number) => void,
+      statValues: HTMLElement[]
+    ) {
+      const opts: IntersectionObserverInit = {
+        rootMargin: "0px 0px -8% 0px",
+        threshold: 0.12,
+      };
+      const observers: IntersectionObserver[] = [];
+      const reveal = (el: Element) => el.classList.add("is-inview");
+
+      // Einzel-Reveals
+      const single = new IntersectionObserver((entries, obs) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          reveal(e.target);
+          obs.unobserve(e.target);
+        });
+      }, opts);
+      document
+        .querySelectorAll<HTMLElement>(
+          "[data-reveal]:not(#top [data-reveal]):not([data-stat]):not([data-stagger-item])"
+        )
+        .forEach((el) => single.observe(el));
+      observers.push(single);
+
+      // Stagger-Gruppen (gestaffelte transition-delay)
+      const group = new IntersectionObserver((entries, obs) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          Array.from(
+            (e.target as HTMLElement).querySelectorAll<HTMLElement>(
+              "[data-stagger-item]"
+            )
+          ).forEach((it, i) => {
+            it.style.transitionDelay = `${(i * 0.08).toFixed(2)}s`;
+            reveal(it);
+          });
+          obs.unobserve(e.target);
+        });
+      }, opts);
+      document
+        .querySelectorAll<HTMLElement>("[data-stagger]")
+        .forEach((g) => group.observe(g));
+      observers.push(group);
+
+      // Kennzahlen: gestaffeltes Reveal + Count-up
+      const statsRoot = document.querySelector<HTMLElement>("[data-stats]");
+      if (statsRoot) {
+        const items = Array.from(
+          statsRoot.querySelectorAll<HTMLElement>("[data-stat]")
+        );
+        const stats = new IntersectionObserver((entries, obs) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            items.forEach((it, i) => {
+              it.style.transitionDelay = `${(i * 0.12).toFixed(2)}s`;
+              reveal(it);
+            });
+            statValues.forEach((el, i) => runCountUp(el, i * 0.2));
+            obs.unobserve(e.target);
+          });
+        }, opts);
+        stats.observe(statsRoot);
+        observers.push(stats);
+      }
+
+      // Spektrum-Balken (CSS transform: scaleX)
+      const bar = new IntersectionObserver((entries, obs) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          reveal(e.target);
+          obs.unobserve(e.target);
+        });
+      }, opts);
+      document
+        .querySelectorAll<HTMLElement>("[data-bar]")
+        .forEach((b) => bar.observe(b));
+      observers.push(bar);
+
+      cleanups.push(() => observers.forEach((o) => o.disconnect()));
+    }
   }
 
   /* ---------------------------------------------------------------- */
