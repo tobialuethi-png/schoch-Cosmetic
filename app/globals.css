@@ -589,12 +589,12 @@ html.anim [data-parallax] {
   }
 }
 /* ====================================================================
-   MOBILE HERO · statisch & rein nativ scrollend
-   Kein Pin, kein Scrub, kein --p. Das Hero-Foto fuellt die Flaeche als
-   Full-Bleed-Hintergrund, Titel + CTAs liegen darueber und sind sofort
-   sichtbar. Da waehrend des Scrollens KEINE JS-/Layout-Arbeit anfaellt,
-   scrollt die Seite mit nativer Compositor-Geschwindigkeit -> garantiert
-   ruckelfrei. Eine einmalige Einblend-Animation laeuft nur beim Laden.
+   MOBILE HERO · Scroll-Expand, compositor-getrieben (fluessig)
+   Das Pinning macht natives position: sticky (Compositor, kein JS-Pin ->
+   kein Ruckeln). Den Expand treiben moderne Browser per CSS Scroll-driven
+   Animations (animation-timeline) – komplett auf dem Compositor, also keine
+   JS-Arbeit pro Frame. Aeltere Browser ohne Support nutzen denselben sticky-
+   Pin + einen leichten --p-Transform-Scrub aus site-init (nur GPU-Transforms).
    ==================================================================== */
 @media (max-width: 1023px) {
   .xhero__title {
@@ -602,13 +602,27 @@ html.anim [data-parallax] {
     font-size: clamp(2.6rem, 1.2rem + 9vw, 4.4rem);
   }
 
-  /* Separater Blur-Hintergrund entfaellt (Foto ist bereits Full-Bleed) –
-     spart ein teures, vollflaechig geblurrtes Bild auf der Mobile-GPU. */
-  .xhero__bg {
-    display: none;
+  /* Scrollstrecke fuer den gehaltenen Expand (Haltephase = 220vh - 100vh). */
+  .xhero {
+    height: 220vh;
+  }
+  /* Natives, compositor-glattes Pinning statt JS-Pin. */
+  .xhero__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
   }
 
-  /* Foto als Full-Bleed-Hintergrund der Hero. */
+  /* Geblurrtes Hintergrund-Foto blendet aus, waehrend die Karte waechst. */
+  .xhero__bg-img {
+    filter: blur(10px) saturate(1.04);
+  }
+  .xhero__bg {
+    opacity: calc(1 - var(--p));
+  }
+
+  /* Karte: fixe Endgroesse (Full-Bleed), per scale() vom Start hochskaliert.
+     Konstantes Seitenverhaeltnis -> object-fit cover bleibt verzerrungsfrei. */
   .xhero__media {
     position: absolute;
     inset: 0;
@@ -617,63 +631,138 @@ html.anim [data-parallax] {
     max-width: none;
     max-height: none;
     border: 0;
-    border-radius: 0;
     box-shadow: none;
-    transform: none;
+    border-radius: calc((1 - var(--p)) * clamp(1rem, 3.4vw, 1.6rem));
+    transform: scale(calc(0.62 + var(--p) * 0.38));
+    transform-origin: center center;
   }
-  /* Vertikaler Verlauf statt flachem Tint -> Titel oben & CTAs unten lesbar. */
   .xhero__media-tint {
-    background: linear-gradient(
-      180deg,
-      rgba(22, 15, 9, 0.42) 0%,
-      rgba(22, 15, 9, 0.18) 34%,
-      rgba(20, 13, 8, 0.32) 60%,
-      rgba(18, 12, 7, 0.78) 100%
-    );
+    background: rgba(24, 16, 10, 0.42);
+    opacity: calc(1 - var(--p));
   }
 
-  /* Titel leicht oberhalb der Mitte, damit unten Platz fuer die CTAs bleibt. */
-  .xhero__titles {
-    justify-content: center;
-    padding-bottom: clamp(7rem, 22vh, 12rem);
+  /* Slogan gleitet auseinander. */
+  .xhero__word--l {
+    transform: translateX(calc(var(--p) * -95vw));
   }
-  .xhero__word {
-    will-change: auto;
+  .xhero__word--r {
+    transform: translateX(calc(var(--p) * 95vw));
   }
 
-  /* CTAs sichtbar (FOUC-Hide gilt nur auf Desktop). Zentrierung ohne transform
-     (left/right:0), damit die heroIn-Einblendung den Transform frei nutzen kann. */
+  /* CTAs blenden im letzten Drittel ein; Zentrierung ohne transform. */
   .xhero__reveal {
-    opacity: 1;
     left: 0;
     right: 0;
     width: auto;
     transform: none;
     padding-inline: 1.25rem;
     bottom: clamp(2.2rem, 7vh, 3.6rem);
+    opacity: calc((var(--p) - 0.6) * 2.8);
+    pointer-events: none;
+  }
+  .xhero.is-expanded .xhero__reveal {
+    pointer-events: auto;
   }
 
-  /* Einmalige, GPU-only Einblendung beim Laden – laeuft vor dem ersten Scroll
-     und beeinflusst die Scroll-Performance nicht. */
+  /* === Moderne Browser: Expand rein per Compositor (Scroll-driven) ===
+     view-timeline auf .xhero; contain 0%..100% == die sticky-Haltephase. */
   @media (prefers-reduced-motion: no-preference) {
-    .xhero__title {
-      animation: heroIn 0.8s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1)) both;
+    @supports (animation-timeline: view()) {
+      .xhero {
+        view-timeline-name: --mh;
+      }
+      .xhero__media {
+        animation: mhMedia linear both;
+        animation-timeline: --mh;
+        animation-range: contain 0% contain 70%;
+      }
+      .xhero__bg,
+      .xhero__media-tint {
+        animation: mhFadeOut linear both;
+        animation-timeline: --mh;
+        animation-range: contain 0% contain 66%;
+      }
+      .xhero__word--l {
+        animation: mhWordL linear both;
+        animation-timeline: --mh;
+        animation-range: contain 0% contain 60%;
+      }
+      .xhero__word--r {
+        animation: mhWordR linear both;
+        animation-timeline: --mh;
+        animation-range: contain 0% contain 60%;
+      }
+      .xhero__reveal {
+        animation: mhReveal linear both;
+        animation-timeline: --mh;
+        animation-range: contain 52% contain 90%;
+      }
+    }
+  }
+
+  /* Reduced Motion: kein Pin/Effekt – fertig expandierter, statischer Hero. */
+  @media (prefers-reduced-motion: reduce) {
+    .xhero {
+      height: auto;
+    }
+    .xhero__pin {
+      position: relative;
+      height: 100svh;
+    }
+    .xhero__bg {
+      display: none;
+    }
+    .xhero__media {
+      transform: none;
+      border-radius: 0;
+    }
+    .xhero__media-tint {
+      opacity: 1;
+      background: linear-gradient(
+        180deg,
+        rgba(22, 15, 9, 0.4) 0%,
+        rgba(20, 13, 8, 0.28) 50%,
+        rgba(18, 12, 7, 0.72) 100%
+      );
+    }
+    .xhero__word--l,
+    .xhero__word--r {
+      transform: none;
     }
     .xhero__reveal {
-      animation: heroIn 0.8s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1)) 0.18s both;
+      opacity: 1;
+      pointer-events: auto;
     }
   }
 }
 
-@keyframes heroIn {
+/* Keyframes der compositor-getriebenen Mobile-Variante (nur Transform/Opacity
+   -> GPU; border-radius nur auf einem Element, vernachlaessigbar). */
+@keyframes mhMedia {
   from {
-    opacity: 0;
-    transform: translate3d(0, 26px, 0);
+    transform: scale(0.62);
+    border-radius: clamp(1rem, 3.4vw, 1.6rem);
   }
   to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+    transform: scale(1);
+    border-radius: 0;
   }
+}
+@keyframes mhFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes mhWordL {
+  from { transform: translateX(0); }
+  to { transform: translateX(-95vw); }
+}
+@keyframes mhWordR {
+  from { transform: translateX(0); }
+  to { transform: translateX(95vw); }
+}
+@keyframes mhReveal {
+  from { opacity: 0; pointer-events: none; }
+  to { opacity: 1; pointer-events: auto; }
 }
 
 /* ====================================================================

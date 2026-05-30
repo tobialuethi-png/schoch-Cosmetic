@@ -156,8 +156,8 @@ export function initSite(): () => void {
       return;
     }
 
-    // Gepinnter Scroll-Expand-Hero NUR auf Desktop. Auf Mobile wird er nie
-    // interaktiv -> rein statischer, nativ scrollender Hero (siehe CSS).
+    // Gepinnter Scroll-Expand-Hero mit JS-Pin NUR auf Desktop. Auf Mobile macht
+    // das Pinning natives position: sticky (siehe CSS) – kein JS-Pin, kein Jank.
     const heroMM = gsap.matchMedia();
     heroMM.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
       const xhero = document.querySelector<HTMLElement>("[data-xhero]");
@@ -189,6 +189,33 @@ export function initSite(): () => void {
       };
     });
     cleanups.push(() => heroMM.revert());
+
+    // Mobile-Hero: Pinning macht CSS position:sticky. Moderne Browser treiben
+    // den Expand komplett per CSS Scroll-driven Animations (Compositor, kein JS
+    // pro Frame). Nur Browser OHNE diese Unterstuetzung bekommen hier einen
+    // leichten --p-Transform-Scrub – ebenfalls ohne JS-Pin, daher fluessig.
+    if (isMobile) {
+      const supportsSDA =
+        typeof CSS !== "undefined" &&
+        typeof CSS.supports === "function" &&
+        CSS.supports("animation-timeline: view()");
+      const xheroEl = document.querySelector<HTMLElement>("[data-xhero]");
+      if (!supportsSDA && xheroEl) {
+        const stMobile = ScrollTrigger.create({
+          trigger: xheroEl,
+          start: "top top",
+          end: "+=120%",
+          scrub: 0.25,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const p = Math.min(self.progress / 0.7, 1);
+            xheroEl.style.setProperty("--p", p.toFixed(4));
+            xheroEl.classList.toggle("is-expanded", p > 0.9);
+          },
+        });
+        cleanups.push(() => stMobile.kill());
+      }
+    }
 
     const reveals = gsap.utils.toArray<HTMLElement>(
       "[data-reveal]:not(#top [data-reveal]):not([data-stat]):not([data-stagger-item])"
