@@ -677,7 +677,11 @@ html.anim [data-parallax] {
     border: 0;
     box-shadow: none;
     border-radius: calc((1 - var(--p)) * clamp(1rem, 3.4vw, 1.6rem));
-    transform: scale(calc(0.62 + var(--p) * 0.38));
+    /* Startzustand etwas groesser (0.72) und leicht nach unten versetzt (7svh),
+       damit die Karte beim Laden nicht an der Leiste klebt; beides faehrt mit
+       dem Scrollen auf 0 zurueck -> Endzustand bleibt zentrierter Full-Bleed. */
+    transform: translateY(calc((1 - var(--p)) * 7svh))
+      scale(calc(0.72 + var(--p) * 0.28));
     transform-origin: center center;
   }
   .xhero__media-tint {
@@ -784,11 +788,11 @@ html.anim [data-parallax] {
    -> GPU; border-radius nur auf einem Element, vernachlaessigbar). */
 @keyframes mhMedia {
   from {
-    transform: scale(0.62);
+    transform: translateY(7svh) scale(0.72);
     border-radius: clamp(1rem, 3.4vw, 1.6rem);
   }
   to {
-    transform: scale(1);
+    transform: translateY(0) scale(1);
     border-radius: 0;
   }
 }
