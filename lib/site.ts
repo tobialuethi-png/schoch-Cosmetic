@@ -32,7 +32,7 @@ export const nav = [
   { label: "Haarentfernung", href: "#behandlungen" },
   { label: "Fusspflege", href: "#fusspflege" },
   { label: "Galerie", href: "#galerie" },
-  { label: "Behandlungsplan", href: "/behandlungsplan" },
+  { label: "Behandlungsplan", href: "/behandlungsplan/" },
   { label: "Über mich", href: "#ueber-mich" },
   { label: "Kontakt", href: "#kontakt" },
 ] as const;

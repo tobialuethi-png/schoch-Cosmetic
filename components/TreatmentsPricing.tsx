@@ -152,7 +152,7 @@ export default function TreatmentsPricing({ mode }: Props) {
 
         {isHaar && (
           <a
-            href="/behandlungsplan"
+            href="/behandlungsplan/"
             className="bplan group mt-12 flex flex-col items-start gap-6 rounded-[24px] border p-8 sm:flex-row sm:items-center md:p-10"
             data-reveal="up"
           >
