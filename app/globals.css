@@ -551,22 +551,24 @@ html.anim [data-parallax] {
   pointer-events: auto;
 }
 
-/* FOUC-Schutz: html.anim setzt das Inline-Script schon vor dem ersten Paint,
-   is-interactive folgt aber erst spaeter durch site-init. In diesem Fenster
-   den interaktiven Startzustand (p=0) vorwegnehmen, damit nicht kurz der
-   statische Hero (grosse Karte, weich-maskierter BG, sichtbare CTAs)
-   aufblitzt. Sobald is-interactive da ist, greifen wieder die Scroll-Regeln. */
-html.anim .xhero:not(.is-interactive) .xhero__bg {
-  opacity: 1;
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-html.anim .xhero:not(.is-interactive) .xhero__media {
-  width: 300px;
-  height: 400px;
-}
-html.anim .xhero:not(.is-interactive) .xhero__reveal {
-  opacity: 0;
+/* FOUC-Schutz (NUR Desktop): html.anim setzt das Inline-Script schon vor dem
+   ersten Paint, is-interactive folgt erst spaeter durch site-init. In diesem
+   Fenster den interaktiven Startzustand (p=0) vorwegnehmen, damit nicht kurz
+   der statische Hero aufblitzt. Auf Mobile gibt es keinen interaktiven Hero,
+   daher duerfen diese Regeln dort NICHT greifen (sonst CTAs unsichtbar etc.). */
+@media (min-width: 1024px) {
+  html.anim .xhero:not(.is-interactive) .xhero__bg {
+    opacity: 1;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  html.anim .xhero:not(.is-interactive) .xhero__media {
+    width: 300px;
+    height: 400px;
+  }
+  html.anim .xhero:not(.is-interactive) .xhero__reveal {
+    opacity: 0;
+  }
 }
 @media (min-width: 1024px) {
   .xhero__reveal {
@@ -586,42 +588,91 @@ html.anim .xhero:not(.is-interactive) .xhero__reveal {
     border-radius: clamp(1.1rem, 0.7rem + 0.9vw, 1.75rem);
   }
 }
+/* ====================================================================
+   MOBILE HERO · statisch & rein nativ scrollend
+   Kein Pin, kein Scrub, kein --p. Das Hero-Foto fuellt die Flaeche als
+   Full-Bleed-Hintergrund, Titel + CTAs liegen darueber und sind sofort
+   sichtbar. Da waehrend des Scrollens KEINE JS-/Layout-Arbeit anfaellt,
+   scrollt die Seite mit nativer Compositor-Geschwindigkeit -> garantiert
+   ruckelfrei. Eine einmalige Einblend-Animation laeuft nur beim Laden.
+   ==================================================================== */
 @media (max-width: 1023px) {
   .xhero__title {
     text-wrap: balance;
     font-size: clamp(2.6rem, 1.2rem + 9vw, 4.4rem);
   }
+
+  /* Separater Blur-Hintergrund entfaellt (Foto ist bereits Full-Bleed) –
+     spart ein teures, vollflaechig geblurrtes Bild auf der Mobile-GPU. */
+  .xhero__bg {
+    display: none;
+  }
+
+  /* Foto als Full-Bleed-Hintergrund der Hero. */
   .xhero__media {
-    width: min(560px, 86vw);
-    height: min(62vh, 480px);
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
   }
-  /* Mobile: guenstigerer Blur-Radius (16px ueber den vollen Viewport ist auf
-     Handy-GPUs teuer und kostet beim Opacity-Fade Frames). */
-  .xhero__bg-img {
-    filter: blur(10px) saturate(1.04);
+  /* Vertikaler Verlauf statt flachem Tint -> Titel oben & CTAs unten lesbar. */
+  .xhero__media-tint {
+    background: linear-gradient(
+      180deg,
+      rgba(22, 15, 9, 0.42) 0%,
+      rgba(22, 15, 9, 0.18) 34%,
+      rgba(20, 13, 8, 0.32) 60%,
+      rgba(18, 12, 7, 0.78) 100%
+    );
   }
-  /* Mobile: Wachstum ueber transform: scale() statt width/height, damit pro
-     Scroll-Frame nur GPU-Compositing (kein Reflow/Repaint) anfaellt. Die Box
-     liegt fix in Endgroesse (konstantes Seitenverhaeltnis -> object-fit cover
-     bleibt verzerrungsfrei) und wird von 0.62 auf 1 skaliert. */
-  .xhero.is-interactive .xhero__media {
-    width: 100vw;
-    height: 90vh;
-    max-width: 100vw;
-    max-height: 90vh;
-    border-radius: calc((1 - var(--p)) * 1.8rem);
-    transform: scale(calc(0.62 + var(--p) * 0.38)) translateZ(0);
-    transform-origin: center center;
-    will-change: transform;
-    backface-visibility: hidden;
+
+  /* Titel leicht oberhalb der Mitte, damit unten Platz fuer die CTAs bleibt. */
+  .xhero__titles {
+    justify-content: center;
+    padding-bottom: clamp(7rem, 22vh, 12rem);
   }
-  /* FOUC-Schutz (mobil): Startzustand der Karte vor is-interactive (= scale 0.62) */
-  html.anim .xhero:not(.is-interactive) .xhero__media {
-    width: 100vw;
-    height: 90vh;
-    border-radius: 1.8rem;
-    transform: scale(0.62) translateZ(0);
-    transform-origin: center center;
+  .xhero__word {
+    will-change: auto;
+  }
+
+  /* CTAs sichtbar (FOUC-Hide gilt nur auf Desktop). Zentrierung ohne transform
+     (left/right:0), damit die heroIn-Einblendung den Transform frei nutzen kann. */
+  .xhero__reveal {
+    opacity: 1;
+    left: 0;
+    right: 0;
+    width: auto;
+    transform: none;
+    padding-inline: 1.25rem;
+    bottom: clamp(2.2rem, 7vh, 3.6rem);
+  }
+
+  /* Einmalige, GPU-only Einblendung beim Laden – laeuft vor dem ersten Scroll
+     und beeinflusst die Scroll-Performance nicht. */
+  @media (prefers-reduced-motion: no-preference) {
+    .xhero__title {
+      animation: heroIn 0.8s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1)) both;
+    }
+    .xhero__reveal {
+      animation: heroIn 0.8s var(--ease-luxe, cubic-bezier(0.22, 1, 0.36, 1)) 0.18s both;
+    }
+  }
+}
+
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 

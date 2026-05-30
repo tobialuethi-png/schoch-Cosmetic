@@ -18,6 +18,10 @@ export function initSite(): () => void {
   const reduceMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)"
   ).matches;
+  // Mobile (Touch): KEIN Lenis, KEIN gepinnter Scroll-Scrub-Hero. Pinning +
+  // Scrub desynchronisieren mit nativem Touch-Scrolling und ruckeln. Auf Mobile
+  // scrollt die Seite rein nativ -> garantiert fluessig.
+  const isMobile = window.matchMedia("(max-width: 1023px)").matches;
 
   const cleanups: Array<() => void> = [];
   let lenis: Lenis | null = null;
@@ -35,7 +39,7 @@ export function initSite(): () => void {
   /* Smooth Scroll (Lenis) + ScrollTrigger-Sync                        */
   /* ---------------------------------------------------------------- */
   function initSmoothScroll() {
-    if (reduceMotion) return;
+    if (reduceMotion || isMobile) return;
     lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -152,13 +156,10 @@ export function initSite(): () => void {
       return;
     }
 
-    // Auf Mobile die pro-Frame teuren Scroll-Scrub-Effekte (Parallax,
-    // Wort-Farb-Reveal) auslassen. Sie blockieren auf schwaecheren GPUs den
-    // Main-Thread und lassen dadurch auch die Einflieg-Animationen ruckeln.
-    const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-
+    // Gepinnter Scroll-Expand-Hero NUR auf Desktop. Auf Mobile wird er nie
+    // interaktiv -> rein statischer, nativ scrollender Hero (siehe CSS).
     const heroMM = gsap.matchMedia();
-    heroMM.add("(prefers-reduced-motion: no-preference)", () => {
+    heroMM.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
       const xhero = document.querySelector<HTMLElement>("[data-xhero]");
       const pin = document.querySelector<HTMLElement>("[data-xhero-pin]");
       if (!xhero || !pin) return;
