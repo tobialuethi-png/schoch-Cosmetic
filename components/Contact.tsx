@@ -70,7 +70,7 @@ export default function Contact() {
               rel="noopener noreferrer"
               className="card-luxe group relative block h-56 overflow-hidden transition-[border-color,transform] duration-400 hover:-translate-y-0.5 hover:border-gold/40"
               data-reveal="up"
-              aria-label="Standort Oberzelgstrasse 7b, Neukirch-Egnach in Google Maps öffnen"
+              aria-label="Standort Oberzelgstrasse 7B, Neukirch-Egnach in Google Maps öffnen"
             >
               <iframe
                 src="https://www.google.com/maps?q=Oberzelgstrasse+7b+9315+Neukirch-Egnach&z=15&output=embed"
@@ -88,7 +88,7 @@ export default function Contact() {
                 style={{ background: "radial-gradient(120% 90% at 50% 0%, transparent 40%, rgba(20,14,8,0.18) 100%)" }}
               />
               <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-night/95 via-night/70 to-transparent px-5 py-3.5">
-                <span className="text-sm text-cream">Oberzelgstrasse 7b · Neukirch-Egnach</span>
+                <span className="text-sm text-cream">Oberzelgstrasse 7B · Neukirch-Egnach</span>
                 <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-mist transition-colors group-hover:text-cream">
                   In Google Maps öffnen
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -109,12 +109,21 @@ export default function Contact() {
 
             <form
               className="grid gap-5 sm:grid-cols-2"
-              action="https://formspree.io/f/your-form-id"
+              action="https://api.web3forms.com/submit"
               method="POST"
               data-contact-form
               data-mailto={contact.email}
             >
+              {/* Web3Forms: Access-Key hier eintragen (von web3forms.com).
+                  Solange der Platzhalter steht, faellt das Formular sicher auf
+                  einen mailto-Fallback zurueck – sobald der echte Key da ist,
+                  wird direkt per AJAX gesendet (ohne Weiterleitung). */}
+              <input type="hidden" name="access_key" value="3e7b4dfa-3d95-4ac9-8840-b0e123f84df5" />
+              <input type="hidden" name="subject" value="Neue Anfrage über schoch-cosmetic.ch" />
+              <input type="hidden" name="from_name" value="Schoch Cosmetic – Kontaktformular" />
+              {/* Spam-Honeypots (fuer Menschen unsichtbar) */}
               <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+              <input type="checkbox" name="botcheck" tabIndex={-1} className="hidden" aria-hidden="true" style={{ display: "none" }} />
 
               <label className="block">
                 <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-sand">

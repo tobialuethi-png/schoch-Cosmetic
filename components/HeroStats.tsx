@@ -15,7 +15,7 @@ const facts = [
 export default function HeroStats() {
   return (
     <section
-      className="relative scroll-mt-24 pb-10 pt-2 md:pb-16 md:pt-4"
+      className="relative scroll-mt-24 pb-10 pt-14 md:pb-16 md:pt-4"
       aria-label="Schoch Cosmetic auf einen Blick"
     >
       <div className="shell">

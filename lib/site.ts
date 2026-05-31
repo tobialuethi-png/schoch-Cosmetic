@@ -19,7 +19,7 @@ export const contact = {
   whatsappText:
     "Grüezi Andrea, ich interessiere mich für eine Probebehandlung mit der MPL4-Technologie.",
   email: "andrea@schoch-cosmetic.ch",
-  street: "Oberzelgstrasse 7b",
+  street: "Oberzelgstrasse 7B",
   zip: "9315",
   city: "Neukirch-Egnach",
   country: "Schweiz",

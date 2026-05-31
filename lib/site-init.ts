@@ -606,14 +606,24 @@ export function initSite(): () => void {
     const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
     if (!form) return;
     const status = form.querySelector<HTMLElement>("[data-form-status]");
+    const submitBtn = form.querySelector<HTMLButtonElement>(
+      'button[type="submit"]'
+    );
 
-    const onSubmit = (e: SubmitEvent) => {
-      const usesPlaceholder = form.action.includes("your-form-id");
-      if (!usesPlaceholder) return;
+    // Statusmeldung im Formular (kein Redirect). ok=true -> Gold-Styling
+    // (Default-Klassen), ok=false -> dezent rotes Inline-Styling.
+    const setStatus = (msg: string, ok: boolean) => {
+      if (!status) return;
+      status.textContent = msg;
+      status.classList.remove("hidden");
+      status.style.cssText = ok
+        ? ""
+        : "color:#f3b4a6;border-color:rgba(214,92,70,0.45);background:rgba(214,92,70,0.12)";
+    };
 
-      e.preventDefault();
-      const data = new FormData(form);
-      if (data.get("_gotcha")) return;
+    // Fallback, falls noch kein Web3Forms-Key hinterlegt ist: oeffnet das
+    // Mailprogramm, damit das Formular nie funktionslos ist.
+    const sendViaMailto = (data: FormData) => {
       const to = form.dataset.mailto || "";
       const name = String(data.get("name") || "");
       const subject = `Anfrage von ${name} – Schoch Cosmetic`;
@@ -627,10 +637,50 @@ export function initSite(): () => void {
       window.location.href = `mailto:${to}?subject=${encodeURIComponent(
         subject
       )}&body=${encodeURIComponent(body)}`;
-      if (status) {
-        status.textContent =
-          "Ihr E-Mail-Programm öffnet sich – oder rufen Sie mich direkt an.";
-        status.classList.remove("hidden");
+    };
+
+    const onSubmit = async (e: SubmitEvent) => {
+      // preventDefault erst NACH der Browser-Pflichtfeld-Validierung: das
+      // submit-Event feuert nur, wenn alle required-Felder gueltig sind.
+      e.preventDefault();
+      const data = new FormData(form);
+      if (data.get("_gotcha")) return; // Honeypot
+
+      const accessKey = String(data.get("access_key") || "");
+      if (!accessKey || accessKey.includes("YOUR_WEB3FORMS")) {
+        sendViaMailto(data);
+        return;
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+      setStatus("Wird gesendet …", true);
+
+      try {
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: data,
+        });
+        const json = await res.json().catch(() => ({ success: false }));
+        if (res.ok && json.success) {
+          form.reset();
+          setStatus(
+            "Vielen Dank! Ihre Nachricht wurde gesendet – ich melde mich zeitnah bei Ihnen.",
+            true
+          );
+        } else {
+          setStatus(
+            "Das hat leider nicht geklappt. Bitte versuchen Sie es erneut oder rufen Sie mich direkt an.",
+            false
+          );
+        }
+      } catch {
+        setStatus(
+          "Senden fehlgeschlagen – bitte Internetverbindung prüfen oder mich direkt anrufen.",
+          false
+        );
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
     };
 
