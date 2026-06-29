@@ -408,12 +408,15 @@ export function initSite(): () => void {
       const bars = gsap.utils.toArray<HTMLElement>("[data-bar]");
       if (bars.length) {
         bars.forEach((bar) => {
-          const target = bar.style.width || "100%";
+          // Fuellung via transform: scaleX (Compositor) statt width (Layout),
+          // exakt wie der Mobile-Pfad. Die Ziel-Breite bleibt als inline-width
+          // erhalten -> Endbild identisch, aber ohne Layout-Arbeit pro Frame.
           gsap.fromTo(
             bar,
-            { width: "0%" },
+            { scaleX: 0 },
             {
-              width: target,
+              scaleX: 1,
+              transformOrigin: "left center",
               duration: 1.4,
               ease: "power3.out",
               scrollTrigger: { trigger: "[data-spectrum]", start: "top 80%" },

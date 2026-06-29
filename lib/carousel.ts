@@ -34,8 +34,12 @@ export function initPriceCarousel(): () => void {
           0.1,
           Math.min(1, track.clientWidth / track.scrollWidth)
         );
+        // Wrapper-Breite EINMAL vor dem Schreiben lesen. bar.clientWidth nach
+        // dem width-Write zu lesen wuerde pro Scroll-Frame ein Layout erzwingen
+        // (Layout-Thrashing); rechnerisch ist bar.clientWidth == wrapW * ratio.
+        const wrapW = barWrap.clientWidth;
         bar.style.width = `${ratio * 100}%`;
-        const room = Math.max(0, barWrap.clientWidth - bar.clientWidth);
+        const room = Math.max(0, wrapW - wrapW * ratio);
         const p = max > 0 ? track.scrollLeft / max : 0;
         bar.style.transform = `translateX(${room * p}px)`;
       }
@@ -142,10 +146,12 @@ export function initPriceCarousel(): () => void {
         }
         let v = vel * 16;
         const friction = 0.94;
+        // Inhaltsbreite aendert sich waehrend des Schwungs nicht -> einmal lesen
+        // statt scrollWidth/clientWidth in jedem rAF-Frame neu abzufragen.
+        const max = maxScroll();
         const step = () => {
           v *= friction;
           const next = track.scrollLeft - v;
-          const max = maxScroll();
           if (next <= 0 || next >= max) {
             track.scrollLeft = Math.max(0, Math.min(max, next));
             raf = 0;
@@ -170,10 +176,13 @@ export function initPriceCarousel(): () => void {
         }
       };
 
-      track.addEventListener("pointerdown", onDown);
-      track.addEventListener("pointermove", onMove);
-      track.addEventListener("pointerup", onUp);
-      track.addEventListener("pointercancel", onUp);
+      // Pointer-Handler rufen nie preventDefault -> passive (scroll-blockierungs-
+      // freie, schneller eingeplante Listener). dragstart/Click bleiben aktiv,
+      // da sie bewusst preventDefault nutzen.
+      track.addEventListener("pointerdown", onDown, { passive: true });
+      track.addEventListener("pointermove", onMove, { passive: true });
+      track.addEventListener("pointerup", onUp, { passive: true });
+      track.addEventListener("pointercancel", onUp, { passive: true });
       track.addEventListener("dragstart", onDrag);
       track.addEventListener("click", onClickCapture, true);
 

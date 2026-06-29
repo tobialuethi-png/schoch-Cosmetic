@@ -182,14 +182,16 @@ export function initGallery(): () => void {
             settle();
           };
 
+          // Alle Pointer-Handler arbeiten ohne preventDefault (Drag laeuft ueber
+          // GSAP-Transforms) -> passive, damit sie das Scrollen nie blockieren.
           if (canHover) {
-            card.addEventListener("pointerenter", onEnter);
-            card.addEventListener("pointerleave", onLeave);
+            card.addEventListener("pointerenter", onEnter, { passive: true });
+            card.addEventListener("pointerleave", onLeave, { passive: true });
           }
-          card.addEventListener("pointerdown", onDown);
-          card.addEventListener("pointermove", onMove);
-          card.addEventListener("pointerup", onUp);
-          card.addEventListener("pointercancel", onUp);
+          card.addEventListener("pointerdown", onDown, { passive: true });
+          card.addEventListener("pointermove", onMove, { passive: true });
+          card.addEventListener("pointerup", onUp, { passive: true });
+          card.addEventListener("pointercancel", onUp, { passive: true });
 
           cleanups.push(() => {
             card.removeEventListener("pointerenter", onEnter);
