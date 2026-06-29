@@ -142,11 +142,45 @@ export function initSmokeBackground(
     return;
   }
 
+  // Software-WebGL erkennen (z. B. SwiftShader / llvmpipe – aktiv, sobald die
+  // Browser-Hardwarebeschleunigung deaktiviert ist). Dort kostet der Fullscreen-
+  // Shader pro Frame sehr viel CPU -> deutlich staerkere Bildraten-Deckelung.
+  const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+  const rendererName = dbg
+    ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "")
+    : "";
+  const softwareGL =
+    /swiftshader|software|llvmpipe|basic render|microsoft/i.test(rendererName);
+
+  // Bildrate deckeln: die goldenen Schwaden bewegen sich extrem langsam, daher
+  // ist eine niedrigere Update-Rate optisch nicht unterscheidbar, spart aber
+  // spuerbar CPU/GPU. Ohne HW-Beschleunigung noch staerker gedrosselt.
+  const frameMs = softwareGL ? 1000 / 12 : 1000 / 30;
+  let lastDraw = -1e9;
+
+  // Waehrend aktiv gescrollt wird, den teuren Redraw aussetzen (das letzte
+  // Standbild bleibt stehen). So konkurriert der Shader nicht mit dem Scroll
+  // -> kein Ruckeln. Die Schwaden sind so traege, dass die Pause unsichtbar ist.
+  let scrolling = false;
+  let scrollTimer = 0;
+  const onScroll = () => {
+    scrolling = true;
+    clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(() => {
+      scrolling = false;
+    }, 180);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+
   let raf = 0;
   let running = true;
   const loop = (now: number) => {
     if (!running) return;
-    draw(now);
+    // FPS-Deckel + Scroll-Pause: nur zeichnen, wenn faellig UND nicht im Scroll.
+    if (!scrolling && now - lastDraw >= frameMs) {
+      draw(now);
+      lastDraw = now;
+    }
     raf = requestAnimationFrame(loop);
   };
   raf = requestAnimationFrame(loop);

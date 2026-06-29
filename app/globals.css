@@ -289,7 +289,13 @@
   }
 }
 
-/* Feines Film-Korn über der ganzen Seite (kostet 0 Requests) */
+/* Feines Film-Korn über der ganzen Seite (kostet 0 Requests).
+   Kein mix-blend-mode: ein fixes Vollbild-Overlay mit Blend-Mode zwingt den
+   Browser, beim Scrollen den gesamten Viewport pro Frame neu zu verrechnen
+   (teuer, v. a. ohne HW-Beschleunigung). Bei nur 2,5% Deckkraft ist das
+   normale Alpha-Overlay optisch nicht vom Multiply zu unterscheiden, wird aber
+   als statische Ebene einmal gerastert -> kein Scroll-Repaint. translateZ(0)
+   haelt es sicher als eigene, stabile Compositing-Ebene. */
 .grain::after {
   content: "";
   position: fixed;
@@ -297,7 +303,7 @@
   z-index: 90;
   pointer-events: none;
   opacity: 0.025;
-  mix-blend-mode: multiply;
+  transform: translateZ(0);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
