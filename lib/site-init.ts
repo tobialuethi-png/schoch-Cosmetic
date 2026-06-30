@@ -40,6 +40,15 @@ export function initSite(): () => void {
   /* ---------------------------------------------------------------- */
   function initSmoothScroll() {
     if (reduceMotion || isMobile) return;
+    // Smooth-Scroll (Lenis) bewusst deaktiviert: Lenis treibt das Scrollen ueber
+    // den JS-Hauptthread (gsap.ticker). Ohne Hardwarebeschleunigung konkurriert
+    // das mit der Software-Rasterung der CPU und ruckelt. Natives Scrollen ueber-
+    // laesst das dem OS/Compositor -> deutlich fluessiger. ScrollTrigger/Pin
+    // laufen mit nativem Scroll (Default); Anchor-Klicks fallen in scrollToTarget
+    // auf window.scrollTo({ behavior: "smooth" }) zurueck; Menue/Lightbox sperren
+    // den Scroll weiterhin ueber body.overflow. Zum Reaktivieren: useLenis = true.
+    const useLenis = false as boolean;
+    if (!useLenis) return;
     lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
