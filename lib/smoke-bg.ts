@@ -163,20 +163,37 @@ export function initSmokeBackground(
   // -> kein Ruckeln. Die Schwaden sind so traege, dass die Pause unsichtbar ist.
   let scrolling = false;
   let scrollTimer = 0;
-  const onScroll = () => {
+  const pause = () => {
     scrolling = true;
     clearTimeout(scrollTimer);
     scrollTimer = window.setTimeout(() => {
       scrolling = false;
     }, 180);
   };
-  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("scroll", pause, { passive: true });
+  // Element-Scroll mitfangen: das Preis-Karussell schreibt track.scrollLeft ->
+  // scroll feuert nur am Element und bubbelt NICHT zu window. Capture-Phase.
+  document.addEventListener("scroll", pause, { passive: true, capture: true });
+  // Pointer-Drag (Galerie-Faecher & Karussell ziehen per GSAP-Transform bzw.
+  // scrollLeft, ganz ohne window-scroll): waehrend des Ziehens pausieren. Nur bei
+  // gedrueckter Taste -> bei reiner Mausbewegung animieren die traegen Schwaden
+  // normal weiter. Die kurze Pause ist optisch nicht sichtbar.
+  window.addEventListener("pointerdown", pause, { passive: true });
+  window.addEventListener(
+    "pointermove",
+    (e) => {
+      if (e.buttons) pause();
+    },
+    { passive: true }
+  );
+  window.addEventListener("pointerup", pause, { passive: true });
 
   let raf = 0;
   let running = true;
   const loop = (now: number) => {
     if (!running) return;
-    // FPS-Deckel + Scroll-Pause: nur zeichnen, wenn faellig UND nicht im Scroll.
+    // FPS-Deckel + Pause: nur zeichnen, wenn faellig UND keine Interaktion
+    // (Scroll oder Pointer-Drag) laeuft.
     if (!scrolling && now - lastDraw >= frameMs) {
       draw(now);
       lastDraw = now;

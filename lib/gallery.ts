@@ -134,13 +134,17 @@ export function initGallery(): () => void {
 
           const onEnter = () => {
             if (dragging || !entered) return;
+            // z-index sofort setzen statt im Tween mitlaufen zu lassen: GSAP
+            // wuerde ihn sonst pro Tick interpolieren/runden (Style-Recalc je
+            // Frame). Sprung auf 999 ist visuell unkritisch -> Karte sofort
+            // zuoberst, Endzustand identisch.
+            gsap.set(card, { zIndex: 999 });
             gsap.to(card, {
               scale: 1.1,
               y: home[i].y - 16,
               rotation: home[i].rot * 0.4,
               duration: 0.5,
               ease: "power3.out",
-              zIndex: 999,
               overwrite: "auto",
             });
           };

@@ -149,16 +149,21 @@ export function initPriceCarousel(): () => void {
         // Inhaltsbreite aendert sich waehrend des Schwungs nicht -> einmal lesen
         // statt scrollWidth/clientWidth in jedem rAF-Frame neu abzufragen.
         const max = maxScroll();
+        // Position in JS fuehren statt track.scrollLeft pro Frame zu LESEN (das
+        // erzwingt je Frame einen Layout-Flush). Der Pointer ist gecaptured, die
+        // Schleife besitzt die Position allein -> identische Bewegung.
+        let pos = track.scrollLeft;
         const step = () => {
           v *= friction;
-          const next = track.scrollLeft - v;
-          if (next <= 0 || next >= max) {
-            track.scrollLeft = Math.max(0, Math.min(max, next));
+          pos -= v;
+          if (pos <= 0 || pos >= max) {
+            pos = Math.max(0, Math.min(max, pos));
+            track.scrollLeft = pos;
             raf = 0;
             snap();
             return;
           }
-          track.scrollLeft = next;
+          track.scrollLeft = pos;
           if (Math.abs(v) > 0.3) {
             raf = requestAnimationFrame(step);
           } else {
