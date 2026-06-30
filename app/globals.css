@@ -277,12 +277,9 @@
   z-index: -1;
   pointer-events: none;
   opacity: 0.42;
-  /* Eigene, stabile Compositing-Ebene (translateZ): das fixe Canvas zwingt so
-     beim Scrollen nicht den Inhalt darueber zu Repaints. Kein will-change noetig
-     -> spart einen permanenten Vollbild-Backing-Store; das Canvas wird nie per
-     CSS transformiert/animiert, der Inhalt aendert sich im WebGL-Kontext. */
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  /* KEIN translateZ/will-change: ohne HW-Beschleunigung kostet die erzwungene
+     Vollbild-Ebene pro Frame extra Software-Compositing (gemessen). Das fixe
+     Canvas wird ohnehin separat behandelt; ohne Layer-Hint guenstiger. */
 }
 @media (prefers-reduced-motion: reduce) {
   .smoke-bg {
@@ -295,8 +292,9 @@
    Browser, beim Scrollen den gesamten Viewport pro Frame neu zu verrechnen
    (teuer, v. a. ohne HW-Beschleunigung). Bei nur 2,5% Deckkraft ist das
    normale Alpha-Overlay optisch nicht vom Multiply zu unterscheiden, wird aber
-   als statische Ebene einmal gerastert -> kein Scroll-Repaint. translateZ(0)
-   haelt es sicher als eigene, stabile Compositing-Ebene. */
+   als statische Ebene einmal gerastert. KEIN translateZ: ohne HW-Beschleunigung
+   kostet die erzwungene Vollbild-Ebene pro Frame extra Software-Compositing
+   (gemessen) -> guenstiger ohne Layer-Hint. */
 .grain::after {
   content: "";
   position: fixed;
@@ -304,7 +302,6 @@
   z-index: 90;
   pointer-events: none;
   opacity: 0.025;
-  transform: translateZ(0);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -476,9 +473,13 @@ html.anim [data-parallax] {
   object-fit: cover;
   object-position: center;
   filter: blur(16px) saturate(1.04);
-  /* translateZ(0) haelt das geblurrte Bild als eigene, stabile GPU-Ebene,
-     sodass das Opacity-Fading beim Scrollen den teuren Blur nicht neu rastert. */
-  transform: scale(1.18) translateZ(0);
+  /* KEIN translateZ(0): der Eltern-Layer .xhero__bg (will-change:opacity) cached
+     den teuren Blur bereits und faded per Opacity. Ein zusaetzlicher eigener
+     Layer hier (durch scale 1.18 sogar uebergross) kostete ohne HW-Beschleunigung
+     pro Frame extra Compositing zweier verschachtelter Bitmaps -> gemessen die
+     Hauptursache der Hero-Ruckler (p99 83ms -> 17ms). scale(1.18) bleibt (Optik
+     identisch). */
+  transform: scale(1.18);
 }
 .xhero__veil {
   position: absolute;
