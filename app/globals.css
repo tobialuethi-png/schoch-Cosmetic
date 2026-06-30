@@ -276,14 +276,14 @@
   height: 100%;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 0.32;
   /* KEIN translateZ/will-change: ohne HW-Beschleunigung kostet die erzwungene
      Vollbild-Ebene pro Frame extra Software-Compositing (gemessen). Das fixe
      Canvas wird ohnehin separat behandelt; ohne Layer-Hint guenstiger. */
 }
 @media (prefers-reduced-motion: reduce) {
   .smoke-bg {
-    opacity: 0.3;
+    opacity: 0.24;
   }
 }
 

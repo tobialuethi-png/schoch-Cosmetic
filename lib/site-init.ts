@@ -47,7 +47,7 @@ export function initSite(): () => void {
     // laufen mit nativem Scroll (Default); Anchor-Klicks fallen in scrollToTarget
     // auf window.scrollTo({ behavior: "smooth" }) zurueck; Menue/Lightbox sperren
     // den Scroll weiterhin ueber body.overflow. Zum Reaktivieren: useLenis = true.
-    const useLenis = false as boolean;
+    const useLenis = true as boolean;
     if (!useLenis) return;
     lenis = new Lenis({
       duration: 1.1,
