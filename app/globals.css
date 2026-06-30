@@ -1317,11 +1317,10 @@ html.anim [data-parallax] {
     left: 50%;
     width: clamp(190px, 19vw, 250px);
     cursor: grab;
-    /* Karten werden dauerhaft per GSAP rotiert/verschoben/gezogen -> stabile
-       Compositing-Ebene halten (rein additiv, 2D-Rotation zeigt nie eine
-       Rueckseite -> backface-visibility visuell neutral). */
-    will-change: transform;
-    backface-visibility: hidden;
+    /* KEIN dauerhaftes will-change: 9 permanente Karten-Ebenen (je mit grossem
+       box-shadow) kosten den Software-Compositor pro Frame, auch im Ruhezustand
+       (ohne HW-Beschleunigung spuerbar). will-change wird in lib/gallery.ts nur
+       waehrend Einblenden/Hover/Drag gesetzt und danach wieder freigegeben. */
   }
   .pg-track.is-fan .pg-card.is-grabbing {
     cursor: grabbing;

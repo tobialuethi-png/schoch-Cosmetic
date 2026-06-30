@@ -81,6 +81,9 @@ export function initGallery(): () => void {
         const enter = () => {
           if (entered) return;
           entered = true;
+          // will-change nur fuer die Dauer der Einblend-Animation setzen und
+          // danach freigeben -> keine dauerhaften 9 Karten-Ebenen im Ruhezustand.
+          cards.forEach((c) => (c.style.willChange = "transform"));
           gsap.to(cards, {
             x: (i: number) => homeX[i],
             y: (i: number) => home[i].y,
@@ -89,6 +92,7 @@ export function initGallery(): () => void {
             duration: 1.1,
             ease: "back.out(1.3)",
             stagger: { each: 0.1, from: "center" },
+            onComplete: () => cards.forEach((c) => (c.style.willChange = "")),
           });
         };
 
@@ -128,7 +132,10 @@ export function initGallery(): () => void {
               ease: "elastic.out(0.65, 0.5)",
               duration: 0.9,
               overwrite: "auto",
-              onComplete: () => (card.style.zIndex = String(home[i].z)),
+              onComplete: () => {
+                card.style.zIndex = String(home[i].z);
+                card.style.willChange = "";
+              },
               ...extra,
             });
 
@@ -139,6 +146,7 @@ export function initGallery(): () => void {
             // Frame). Sprung auf 999 ist visuell unkritisch -> Karte sofort
             // zuoberst, Endzustand identisch.
             gsap.set(card, { zIndex: 999 });
+            card.style.willChange = "transform";
             gsap.to(card, {
               scale: 1.1,
               y: home[i].y - 16,
@@ -163,6 +171,7 @@ export function initGallery(): () => void {
             sy = e.clientY;
             gsap.killTweensOf(card);
             gsap.set(card, { zIndex: 999 });
+            card.style.willChange = "transform";
             gsap.to(card, {
               scale: 1.12,
               rotation: home[i].rot * 0.3,
@@ -221,7 +230,10 @@ export function initGallery(): () => void {
           track.style.removeProperty("--pg-stage-h");
           if (hint) hint.style.display = "";
           gsap.set(cards, { clearProps: "all" });
-          cards.forEach((c) => (c.style.zIndex = ""));
+          cards.forEach((c) => {
+            c.style.zIndex = "";
+            c.style.willChange = "";
+          });
         };
       } catch (err) {
         console.error("[schoch-cosmetic] gallery fan:", err);
