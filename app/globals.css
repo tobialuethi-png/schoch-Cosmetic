@@ -315,12 +315,6 @@
   filter: blur(80px);
   pointer-events: none;
   z-index: 0;
-  /* Statisches, dekoratives Glühen -> auf eigene Ebene heben, damit der teure
-     blur(80px) einmal gerastert und danach nur noch komponiert wird (kein
-     Re-Blur beim Scrollen). KEIN contain: der Blur-Halo reicht bewusst ueber
-     die Box hinaus und darf nicht beschnitten werden. */
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 /* Duotone-Filter: warmes Terrakotta-Sepia statt kühlem Blau-Plum */
@@ -475,11 +469,6 @@ html.anim [data-parallax] {
   inset: 0;
   z-index: 0;
   will-change: opacity;
-  /* Isolierte Ebene: der teure blur(16px) wird einmal gerastert, nur die
-     Opazitaet (eigener, guenstiger Kanal) faded beim Scrollen. Begrenzung =
-     Pin-Box, die ohnehin schon per overflow:hidden clippt -> optisch identisch. */
-  contain: paint;
-  transform: translateZ(0);
 }
 .xhero__bg-img {
   width: 100%;
@@ -517,10 +506,6 @@ html.anim [data-parallax] {
   height: 100%;
   object-fit: cover;
   object-position: 46% 40%;
-  /* object-fit/-position unveraendert -> Crop-Morph bleibt pixelgleich; haelt
-     das Bild-Resampling lokal auf einer stabilen Ebene. */
-  contain: paint;
-  transform: translateZ(0);
 }
 .xhero__media-tint {
   position: absolute;
@@ -542,10 +527,6 @@ html.anim [data-parallax] {
   text-align: center;
   gap: clamp(1.4rem, 1rem + 2vw, 2.4rem);
   pointer-events: none;
-  /* Eigene Paint-Ebene: die text-shadow-Glyphen (bis clamp 8.4rem) werden nicht
-     neu gerastert, wenn nebenan das Medium seine Groesse aendert; die Wort-
-     Transforms bleiben rein Compositor. Begrenzung = Pin-Box (clippt ohnehin). */
-  contain: layout paint;
 }
 .xhero__title {
   font-family: var(--font-display);
@@ -631,22 +612,15 @@ html.anim [data-parallax] {
   max-width: 95vw;
   max-height: 74vh;
   border-radius: calc((1 - var(--p)) * clamp(0.9rem, 0.6rem + 1vw, 1.6rem));
-  /* Beim Scrollen aendern sich width/height pro Frame (Layout + Bild-Re-Cover).
-     Eigene Ebene + Containment begrenzen diese teure Neuberechnung auf die Box
-     -> geblurrter Hintergrund, Schleier und grosse Titel werden NICHT mit-
-     gerastert. Geometriewerte unveraendert -> Crop-Morph bleibt identisch. */
-  transform: translateZ(0);
-  will-change: width, height;
-  contain: layout paint;
 }
 .xhero.is-interactive .xhero__media-tint {
   opacity: calc(1 - var(--p));
 }
 .xhero.is-interactive .xhero__word--l {
-  transform: translateX(calc(var(--p) * -95vw)) translateZ(0);
+  transform: translateX(calc(var(--p) * -95vw));
 }
 .xhero.is-interactive .xhero__word--r {
-  transform: translateX(calc(var(--p) * 95vw)) translateZ(0);
+  transform: translateX(calc(var(--p) * 95vw));
 }
 .xhero.is-interactive .xhero__reveal {
   opacity: calc((var(--p) - 0.7) * 3.4);
@@ -1149,10 +1123,6 @@ html.anim [data-parallax] {
   flex-direction: column;
   padding: 1.9rem 1.7rem;
   border-radius: 22px;
-  /* Hover faerbt border-color/box-shadow (Paint, kein Compositor) -> Repaint
-     auf eine Karte begrenzen statt in die scrollende Track-Flaeche zu falten.
-     Eigene box-shadow der Karte bleibt sichtbar (contain clippt nur Kinder). */
-  contain: layout paint;
 }
 .pcar__title {
   font-family: var(--font-display);
