@@ -1,0 +1,50 @@
+# Hostinger (Apache / LiteSpeed) – Regeln für den statischen Next.js-Export.
+# Entspricht public/_redirects (Cloudflare-Pages-Format, wird von Hostinger ignoriert).
+
+AddDefaultCharset UTF-8
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404/index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Next.js Static Export: Segment-Prefetch der Unterseiten
+  # (Datei liegt im Ordner, Client fragt mit Punkt)
+  RewriteRule ^behandlungsplan/__next\.behandlungsplan\.__PAGE__\.txt$ /behandlungsplan/__next.behandlungsplan/__PAGE__.txt [L]
+  RewriteRule ^impressum/__next\.impressum\.__PAGE__\.txt$ /impressum/__next.impressum/__PAGE__.txt [L]
+
+  # Alte Wix-Pfade → neue Anker (NE = "#" nicht escapen)
+  RewriteRule ^(mpl4-technologie|mpl4|technologie)/?$ /#technologie [R=301,NE,L]
+  RewriteRule ^(angebot-preise|preise)/?$ /#preise [R=301,NE,L]
+  RewriteRule ^angebot/?$ /#angebot [R=301,NE,L]
+  RewriteRule ^fusspflege/?$ /#fusspflege [R=301,NE,L]
+  RewriteRule ^behandlungen/?$ /#leistungen [R=301,NE,L]
+  RewriteRule ^haarentfernung/?$ /#haarentfernung [R=301,NE,L]
+  RewriteRule ^(ueber-mich|über-mich|about)/?$ /#ueber-mich [R=301,NE,L]
+  RewriteRule ^(kontakt-termine|kontakt|termine)/?$ /#kontakt [R=301,NE,L]
+  RewriteRule ^(feedback-referenzen|referenzen|ergebnisse)/?$ /#praxis [R=301,NE,L]
+  RewriteRule ^home/?$ / [R=301,L]
+</IfModule>
+
+# Caching: gehashte Build-Dateien dauerhaft, HTML immer neu prüfen
+<IfModule mod_expires.c>
+  ExpiresActive On
+  <FilesMatch "\.(js|css|woff2?|png|jpe?g|webp|avif|svg|ico)$">
+    ExpiresDefault "access plus 1 year"
+  </FilesMatch>
+  <FilesMatch "\.(html|txt|xml)$">
+    ExpiresDefault "access plus 0 seconds"
+  </FilesMatch>
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|txt|xml)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Kompression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+</IfModule>

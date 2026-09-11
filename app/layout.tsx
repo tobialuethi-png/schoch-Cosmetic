@@ -1,50 +1,33 @@
 import type { Metadata, Viewport } from "next";
+import { Instrument_Serif, Instrument_Sans, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
-import "@fontsource-variable/hanken-grotesk";
-import "@fontsource-variable/cormorant";
 import { site, contact } from "@/lib/site";
-import SmokeBg from "@/components/SmokeBg";
+import SmoothScroll from "@/components/motion/SmoothScroll";
+import { TransitionProvider } from "@/components/motion/Transition";
+import PageMotion from "@/components/motion/PageMotion";
+import Nav from "@/components/Nav";
+import BottomBar from "@/components/BottomBar";
+import Footer from "@/components/sections/Footer";
 
-const description =
-  "Permanente, schmerzarme Haarentfernung mit der einzigartigen MPL4-Lichttechnologie – für dauerhaft glatte Haut. Persönlich bei Andrea Schoch in Neukirch-Egnach (TG).";
-const title =
-  "Schoch Cosmetic | Permanente Haarentfernung mit MPL4-Technologie";
+const serif = Instrument_Serif({ weight: "400", style: ["normal", "italic"], subsets: ["latin"], variable: "--font-instrument-serif", display: "swap" });
+const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans", display: "swap" });
+// Hero-Display: Bodoni Moda (OFL, optische Grösse → hauchdünne Haarlinien im Display) — nur für die Hero-Headline
+const display = Bodoni_Moda({ weight: ["400"], style: ["normal", "italic"], subsets: ["latin"], variable: "--font-display-hero", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
-  title,
-  description,
+  title: site.title,
+  description: site.description,
   alternates: { canonical: "/" },
-  icons: {
-    icon: { url: "/favicon.svg", type: "image/svg+xml" },
-    apple: "/apple-touch-icon.png",
-  },
+  icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" }, apple: "/apple-touch-icon.png" },
   robots: { index: true, follow: true, "max-image-preview": "large" },
   formatDetection: { telephone: true },
-  openGraph: {
-    type: "website",
-    locale: "de_CH",
-    siteName: site.name,
-    title,
-    description,
-    url: site.domain,
-    images: [{ url: "/og.png", width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: ["/og.png"],
-  },
+  openGraph: { type: "website", locale: "de_CH", siteName: site.name, title: site.title, description: site.description, url: site.domain, images: [{ url: "/og.png", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: site.title, description: site.description, images: ["/og.png"] },
 };
 
-export const viewport: Viewport = {
-  themeColor: "#f7f0e3",
-  width: "device-width",
-  initialScale: 1,
-};
+export const viewport: Viewport = { themeColor: "#fbf7f1", width: "device-width", initialScale: 1 };
 
-// Strukturierte Daten: lokales Beauty-/Aesthetik-Business + Service
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -52,7 +35,7 @@ const jsonLd = {
       "@type": "HealthAndBeautyBusiness",
       "@id": `${site.domain}/#business`,
       name: site.name,
-      description,
+      description: site.description,
       url: site.domain,
       telephone: "+41793815251",
       email: contact.email,
@@ -61,76 +44,33 @@ const jsonLd = {
       founder: { "@type": "Person", name: site.founder },
       foundingDate: "2003",
       currenciesAccepted: "CHF",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: contact.street,
-        postalCode: contact.zip,
-        addressLocality: contact.city,
-        addressCountry: "CH",
-      },
-      areaServed: [
-        { "@type": "AdministrativeArea", name: "Thurgau" },
-        { "@type": "AdministrativeArea", name: "Ostschweiz" },
-      ],
-      knowsAbout: [
-        "Permanente Haarentfernung",
-        "MPL4 Multipulselight Technologie",
-        "Fusspflege",
-      ],
-      sameAs: [],
+      address: { "@type": "PostalAddress", streetAddress: contact.street, postalCode: contact.zip, addressLocality: contact.city, addressCountry: "CH" },
+      areaServed: [{ "@type": "AdministrativeArea", name: "Thurgau" }, { "@type": "AdministrativeArea", name: "Ostschweiz" }],
+      knowsAbout: ["Permanente Haarentfernung", "MPL4 Multipulselight Technologie", "Fusspflege"],
     },
-    {
-      "@type": "Service",
-      "@id": `${site.domain}/#service-haarentfernung`,
-      serviceType: "Permanente Haarentfernung mit MPL4-Technologie",
-      provider: { "@id": `${site.domain}/#business` },
-      areaServed: "Thurgau, Schweiz",
-      description:
-        "Dauerhafte, schmerzarme Haarentfernung mit der Multipulselight 4G-Technologie, geeignet für nahezu jede Hauttönung.",
-    },
+    { "@type": "Service", name: "Permanente Haarentfernung mit MPL4", provider: { "@id": `${site.domain}/#business` }, areaServed: "Ostschweiz" },
+    { "@type": "Service", name: "Medizinische Fusspflege", provider: { "@id": `${site.domain}/#business` }, areaServed: "Ostschweiz" },
   ],
 };
 
-// Animations-Gate: setzt Initialzustände nur, wenn JS aktiv & Motion erlaubt.
-// Verhindert FOUC und hält Inhalte ohne JS sichtbar.
-const animGate = `(function () {
-  try {
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    document.documentElement.classList.add("anim");
-    window.setTimeout(function () {
-      if (!window.__schochReady)
-        document.documentElement.classList.remove("anim");
-    }, 2500);
-  } catch (e) {}
-})();`;
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className="grain" suppressHydrationWarning>
+    <html lang="de-CH" className={`no-js ${serif.variable} ${sans.variable} ${display.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.remove('no-js')" }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      </head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: animGate }} />
-
-        {/* Dezenter, goldener Smoke-Hintergrund (WebGL, rein dekorativ) */}
-        <SmokeBg />
-
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-gold focus:px-5 focus:py-3 focus:text-cream focus:font-medium"
-        >
-          Zum Inhalt springen
-        </a>
-
-        {children}
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <a href="#main" className="skip-link">Zum Inhalt springen</a>
+        <SmoothScroll />
+        <TransitionProvider>
+          <Nav />
+          <PageMotion>
+            <main id="main" className="relative z-[2]">{children}</main>
+            <Footer />
+          </PageMotion>
+          <BottomBar />
+        </TransitionProvider>
       </body>
     </html>
   );
