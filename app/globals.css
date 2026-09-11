@@ -548,6 +548,10 @@ html.lite .tech-pulse, .no-js .tech-pulse { display: none; }
      gemalt, keine Animation. Der Hero liegt normal im Fluss (kein sticky, kein Dim, kein Recede). */
   .stack-card { position: relative; border-radius: 28px 28px 0 0; margin-top: -28px; padding-top: calc(var(--section-y) + 16px); }
   .stack-card, .deck-inner { box-shadow: 0 -18px 40px -12px rgb(43 30 23 / 0.16); }
+  /* Technologie liegt über dem Preis-Deck (z 5 > 4): der Blur-Ausläufer des Karten-Schattens (bis 10 px unter der Kartenkante) läge
+     sonst als hauchdünner dunkler Streifen auf der Creme-Fläche der Technologie — nach dem Fusspflege-Tab direkt im Blick. Ein clip-path
+     an der Kartenkante taugt nicht: an Bruchteil-Pixeln (z. B. 299.59 px) erzeugt er selbst eine Antialiasing-Naht. */
+  .tech { z-index: 5; }
   [data-deck] { position: relative; z-index: 4; }
   .deck-inner { border-radius: 28px 28px 0 0; overflow: clip; }
   /* Desktop-Dim-Ebene und Wachs-Fläche gibt es mobil nicht (MotionScope setzt Decks nur ab 768 px) */
