@@ -4,7 +4,6 @@ import type { ImageName } from "@/lib/images.generated";
 import LuxButton from "@/components/ui/LuxButton";
 
 const tones: Record<string, string> = { apricot: "bg-apricot", sage: "bg-sage" };
-const pad = (i: number) => String(i).padStart(2, "0");
 
 /**
  * Signature 2 — Sticky-Stack (chic #3): jedes Panel ist ein voller Bildschirm mit eigener Farbfläche,
@@ -41,15 +40,14 @@ export default function Services() {
                   <h2 id={`${t.id}-title`} className="t-h2 svc-title" data-reveal-text data-at="0.15">{t.title}</h2>
                   <p className="t-lead mt-7 max-w-[520px] text-umber" data-reveal>{t.text}</p>
 
-                  {/* Zonen als nummerierte Liste mit Haarlinien (clinique7-Prinzip) */}
-                  <ol className="mt-9 grid max-w-[560px] grid-cols-1 border-t hairline sm:grid-cols-2 sm:gap-x-10" data-reveal-group>
-                    {t.items.map((item, k) => (
-                      <li key={item} className="t-body flex items-baseline gap-4 border-b hairline py-3">
-                        <span className="t-eyebrow tnum text-orange-ink">{pad(k + 1)}</span>
-                        <span>{item}</span>
+                  {/* Zonen als ruhige Liste mit Haarlinien (ohne Nummern, Kundenwunsch) */}
+                  <ul className="mt-9 grid max-w-[560px] grid-cols-1 border-t hairline sm:grid-cols-2 sm:gap-x-10" data-reveal-group>
+                    {t.items.map((item) => (
+                      <li key={item} className="t-body border-b hairline py-3">
+                        {item}
                       </li>
                     ))}
-                  </ol>
+                  </ul>
 
                   {/* Ein CTA pro Panel, beide «Termin anfragen» (Behandlungsplan bleibt über Nav und Preise erreichbar) */}
                   <div className="mt-10" data-reveal>

@@ -183,7 +183,7 @@ export const about = {
   credentials: ["Gelernte MPA", "Kantonsspital St. Gallen", "Eigene Praxis seit 2003", "Fusspflege VitaTertia Gossau"],
   secondImage: "fusspflege-andrea",
   secondImageAlt: "Andrea Schoch bei der Fusspflege",
-  cta: { label: "Persönliches Gespräch vereinbaren", href: contact.phoneHref },
+  cta: { label: "Persönliches Gespräch vereinbaren", href: "/#kontakt" },
   image: "schochxy",
   imageAlt: "Andrea Schoch, Inhaberin von Schoch Cosmetic, im Porträt",
 } as const;

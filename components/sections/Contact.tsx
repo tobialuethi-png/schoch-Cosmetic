@@ -9,6 +9,7 @@ type Status = "idle" | "sending" | "sent" | "error";
 /**
  * Section 11 — Kontakt & Besuch (chic #9), ein Bildschirm: Headline in Section-Grösse über die volle Breite,
  * darunter Adresse, Telefon, WhatsApp, E-Mail und Route-Button links, Formular-Card rechts. Einzelpraxis: Ich-Form, keine Team-Formulierungen.
+ * Mobil steht das Formular direkt unter der Headline (alle CTAs führen zum Formular — es muss beim Landen im Bild sein), die Kontaktwege darunter.
  * Formular: web3forms per fetch; ohne JS greift der mailto-Fallback im action-Attribut.
  * Keine Social-/Review-Links (Kundenvorgabe). Conversion-Strecke → ruhig (Übergang «cover»).
  */
@@ -44,7 +45,7 @@ export default function Contact() {
           </header>
 
           <div className="mt-12 grid gap-12 md:mt-16 md:grid-cols-12 md:gap-12 lg:gap-16">
-            <div className="md:col-span-5">
+            <div className="order-2 md:order-none md:col-span-5">
               <dl className="space-y-6 t-body" data-reveal-group>
                 <div className="flex gap-4">
                   <MapPin className="mt-1.5 shrink-0 text-orange-ink" />
@@ -78,7 +79,7 @@ export default function Contact() {
               </dl>
             </div>
 
-            <div className="md:col-span-7">
+            <div className="order-1 md:order-none md:col-span-7">
               <form
                 action={mailto}
                 method="post"

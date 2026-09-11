@@ -3,6 +3,7 @@ import { useRef, type ReactNode } from "react";
 import { gsap, useGSAP, ScrollTrigger, SplitText } from "@/lib/gsap";
 import { useMotionMode } from "@/lib/useMotionMode";
 import { dur, ease, stagger, scroll, dist } from "@/lib/motion";
+import { staticTop } from "@/lib/dom";
 
 /**
  * Zentrale Motion-API (gsap-motion §II.2), reduziert auf die im Blend-Plan geplanten Muster:
@@ -50,8 +51,8 @@ export default function MotionScope({ children, className }: { children: ReactNo
           }
           const y = isDesktop ? dist.text : dist.textMobile;
           const main = document.getElementById("main");
-          // Dokumentposition über die offsetTop-Kette: unabhängig von sticky-Versatz und Transforms
-          const docTop = (el: HTMLElement) => { let t = 0; for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) t += n.offsetTop; return t; };
+          // Ruhelage im Dokument (lib/dom.ts): ohne Sticky-Versatz (Chromium liefert ihn auch in offsetTop) und ohne Transforms
+          const docTop = staticTop;
           // Sticky-/Pinned-Sections (data-reveal-scope): Elemente im unteren Bildschirmdrittel erreichen die
           // normale Startlinie nie, weil die Section steht → Trigger direkt an der Viewport-Unterkante.
           // Footer (sticky bottom, liegt hinter dem Inhalt): sein Rect steht beim Refresh immer im Viewport →
@@ -242,8 +243,8 @@ export default function MotionScope({ children, className }: { children: ReactNo
           });
 
           // data-parallax — nur Desktop (Gesetz 10). yPercent ∓8 (Scale 1.16 deckt genau ±8 %), Scale konstant.
-          // Positionen als Zahlen aus der offsetTop-Kette: ein getBoundingClientRect auf einer stehenden Sticky-Karte
-          // würde beim Refresh (Fonts, Lazy-Bilder, Resize) den Sticky-Versatz mitmessen → Start/Ende verrutschen → Sprung.
+          // Positionen als Ruhelage (staticTop): eine stehende Sticky-Karte meldet in getBoundingClientRect UND offsetTop ihren
+          // Versatz — beim Refresh (Fonts, Preis-Tabs, Resize) verrutschten sonst Start/Ende → Sprung.
           // In einer Sticky-Karte endet der Versatz, sobald die Karte steht (top = 0): sonst zieht das Bild weiter,
           // während die Karte und der Text stehen (spürbares «Schwimmen» hinter dem Scroll).
           if (isDesktop) {
@@ -308,10 +309,13 @@ export default function MotionScope({ children, className }: { children: ReactNo
               while (node.parentElement?.classList.contains("pin-spacer")) node = node.parentElement;
               const sib = node.previousElementSibling;
               const prevInner = prev && sib && (sib === prev || sib.contains(prev)) ? prev.querySelector<HTMLElement>(":scope > .deck-inner") : null;
+              // Beim ersten Refresh ist isActive noch undefined → classList.toggle(name, undefined) SCHALTET UM statt zu setzen:
+              // jede Karte trüge is-transitioning (will-change auf Fläche und Inhalt) vom Laden an bis zum ersten Toggle → !!
               const phase = (self: ScrollTrigger) => {
-                sec.classList.toggle("is-transitioning", self.isActive);
-                sec.classList.toggle("is-settled", !self.isActive && self.progress >= 1);
-                prevInner?.classList.toggle("is-dimming", self.isActive);
+                const active = !!self.isActive;
+                sec.classList.toggle("is-transitioning", active);
+                sec.classList.toggle("is-settled", !active && (self.progress || 0) >= 1);
+                prevInner?.classList.toggle("is-dimming", active);
               };
               const st = { trigger: sec, start: "top bottom", end: "top top", scrub: 0.6, onToggle: phase, onRefresh: phase };
               const kind = sec.dataset.deck;

@@ -90,5 +90,7 @@ export function initQuality() {
     if (location.search.includes("motion=full")) sessionStorage.setItem("motion", "full");
     if (sessionStorage.getItem("motion") === "full") return;
   } catch {}
+  // Touch-Geräte scrollen nativ (kein Lenis, SmoothScroll.tsx): der Wächter hätte nichts abzuschalten und hielte nur den GSAP-Ticker dauerhaft wach
+  if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
   startFpsWatchdog();
 }

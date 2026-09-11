@@ -351,6 +351,11 @@ html.lite .deck-wash, .no-js .deck-wash { display: none; }
   .site-footer { position: sticky; bottom: 0; }
 }
 
+/* Bildschirm-Sections (Nav-Ziele): native Anker-Navigation (Reload mit Hash, geteilter Link, Lite-Mode) landet exakt an der
+   Section-Oberkante — der globale scroll-padding-top (Nav) wird für diese Ziele neutralisiert, sie bringen ihren Nav-Abstand
+   selbst mit. Ohne das landete der Browser 92 px davor: halb gebloomte Deck-Fläche, halb eingeblendeter Inhalt. */
+.stack-card, [data-deck], .tech, #ueber-mich { scroll-margin-top: calc(-1 * (var(--nav-h) + 16px)); }
+
 /* Preisliste */
 .tab-pill {
   height: 46px; padding-inline: 22px; border-radius: 999px;
@@ -379,9 +384,10 @@ html.lite .deck-wash, .no-js .deck-wash { display: none; }
 }
 html.lite .tech-cover, .no-js .tech-cover { display: none; }
 @media (prefers-reduced-motion: reduce) { .tech-cover { display: none; } }
-/* Lichtsaum: ein breiter, transparenter Strich in Apricot statt Blur (Gesetz 2). Pro Segment ein Saum + ein Kern;
+/* Lichtsaum: ein breiter, halbtransparenter Strich in Apricot statt Blur (Gesetz 2). Deckkraft steckt im Verlauf (stopOpacity,
+   Technology.tsx), nicht in opacity auf dem Pfad (kein Transparenz-Puffer pro Pfad und Kachel). Pro Segment ein Saum + ein Kern;
    gezeichnet wird per stroke-dasharray/-offset (Technology.tsx), Rundkappen machen die Spitze weich */
-.tech-thread .th-halo { stroke: url(#tech-halo-grad); stroke-width: 120px; opacity: 0.5; }
+.tech-thread .th-halo { stroke: url(#tech-halo-grad); stroke-width: 120px; }
 .tech-thread .th-core { stroke: url(#tech-thread-grad); stroke-width: 64px; }
 @media (min-width: 768px) {
   .tech-thread .th-halo { stroke-width: 220px; }

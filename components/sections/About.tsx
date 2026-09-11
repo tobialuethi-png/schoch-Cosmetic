@@ -2,6 +2,7 @@ import { about, site } from "@/lib/site";
 import Picture from "@/components/ui/Picture";
 import type { ImageName } from "@/lib/images.generated";
 import { ArrowRight } from "@/components/ui/Icons";
+import { TransitionLink } from "@/components/motion/Transition";
 
 /**
  * Section 7 — Über mich: der einzige dunkle Block der Seite (tiefes Cocoa, Creme-Text, Apricot-Akzente) — Kontrastpunkt in der Mitte.
@@ -50,7 +51,8 @@ export default function About() {
               ))}
             </div>
 
-            <a href={about.cta.href} className="btn btn-ghost btn-ghost--light mt-12" data-reveal>{about.cta.label} <ArrowRight /></a>
+            {/* CTA führt wie alle anderen zum Kontaktformular (Transition: Section-Oberkante) */}
+            <TransitionLink href={about.cta.href} className="btn btn-ghost btn-ghost--light mt-12" data-reveal>{about.cta.label} <ArrowRight /></TransitionLink>
           </div>
         </div>
       </div>

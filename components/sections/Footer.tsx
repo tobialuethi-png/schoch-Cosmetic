@@ -41,8 +41,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      {/* Platz für die mobile Bottom-Bar */}
-      <div className="h-16 md:hidden" aria-hidden="true" />
     </footer>
   );
 }

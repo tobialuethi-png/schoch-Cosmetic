@@ -9,11 +9,27 @@ import { scroll } from "@/lib/motion";
 /**
  * Lenis + ScrollTrigger: ein Ticker, eine Wahrheit (gsap-motion §III.6).
  * Kein Lenis unter reduced-motion / Lite-Mode; Anker-Links laufen über Lenis.
+ * Seitenhöhen-Wächter (alle Modi): ändert sich die Dokumenthöhe ohne Resize (Preis-Tabs, FAQ-Akkordeon), messen
+ * alle ScrollTrigger neu — sonst stehen Lichtfaden, Deck-Übergänge und Footer-Gate an den alten Positionen.
  */
 export default function SmoothScroll() {
   useEffect(() => {
     initQuality();
-    if (getMode() === "lite" || prefersReducedMotion() || !getSmooth()) return;
+
+    let lastH = document.documentElement.scrollHeight;
+    const remember = () => { lastH = document.documentElement.scrollHeight; };
+    ScrollTrigger.addEventListener("refresh", remember);
+    let timer = 0;
+    const changed = () => Math.abs(document.documentElement.scrollHeight - lastH) >= 2;
+    const ro = new ResizeObserver(() => {
+      if (!changed()) return;
+      clearTimeout(timer);
+      timer = window.setTimeout(() => { if (changed()) ScrollTrigger.refresh(); }, 150);
+    });
+    ro.observe(document.body);
+    const stopHeightWatch = () => { ro.disconnect(); clearTimeout(timer); ScrollTrigger.removeEventListener("refresh", remember); };
+
+    if (getMode() === "lite" || prefersReducedMotion() || !getSmooth()) return stopHeightWatch;
 
     // Anker-Links: mit Lenis über lenis.scrollTo, ohne Lenis über window.scrollTo (scrollToTarget rechnet den Nav-Versatz selbst)
     const onClick = (e: MouseEvent) => {
@@ -33,7 +49,7 @@ export default function SmoothScroll() {
     // Touch-Geräte (Gesetz 10): natives Scrollen läuft im Compositor-Thread und bleibt auch bei belegtem Hauptthread flüssig.
     // Lenis glättet dort ohnehin nicht (syncTouch aus) und brächte nur Ticker-Last pro Frame → gar nicht erst starten.
     if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
-      return () => document.removeEventListener("click", onClick);
+      return () => { document.removeEventListener("click", onClick); stopHeightWatch(); };
     }
 
     const lenis = new Lenis({ lerp: scroll.lenis.lerp, duration: scroll.lenis.duration, smoothWheel: true, syncTouch: false });
@@ -49,6 +65,7 @@ export default function SmoothScroll() {
 
     return () => {
       document.removeEventListener("click", onClick);
+      stopHeightWatch();
       gsap.ticker.remove(tick);
       lenis.destroy();
       setLenis(null);

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { getLenis } from "@/lib/lenis";
 import { nav, contact, whatsappHref, site } from "@/lib/site";
 import { TransitionLink } from "@/components/motion/Transition";
@@ -13,6 +13,9 @@ import LuxButton from "@/components/ui/LuxButton";
 /**
  * Sticky Nav mit einem Pill-CTA (chic) — transparent über dem hellen Hero (Ink-Farben),
  * ab 80 px Scroll Creme mit Hairline. Menü: Vollbild-Overlay in Creme (lagence-Muster, helle Variante).
+ * Scroll-Zustand über einen passiven scroll-Listener (setState nur beim Schwellenwechsel) — unabhängig von
+ * ScrollTrigger, damit die Leiste auch im Lite-Mode (ScrollTrigger.killAll) und ohne Lenis sicher umschaltet.
+ * Alle Links laufen über TransitionLink: Sections landen exakt an der Oberkante (Transition.tsx), Logo → Seitenanfang.
  */
 export default function Nav() {
   const pathname = usePathname();
@@ -25,36 +28,37 @@ export default function Nav() {
 
   useEffect(() => {
     if (!onHome) { setScrolled(true); return; }
-    const st = ScrollTrigger.create({ start: 80, onUpdate: (self) => setScrolled(self.scroll() > 80) });
-    setScrolled(window.scrollY > 80);
-    return () => st.kill();
+    let past = window.scrollY > 80;
+    setScrolled(past);
+    const onScroll = () => { const p = window.scrollY > 80; if (p !== past) { past = p; setScrolled(p); } };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [onHome]);
 
   const { contextSafe } = useGSAP(() => {
     gsap.set(overlay.current, { autoAlpha: 0 });
   }, { scope: header });
 
+  const reduce = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("lite");
+
   const openMenu = contextSafe(() => {
     setOpen(true);
     getLenis()?.stop();
     document.documentElement.classList.add("scroll-lock");
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("lite");
     const tl = gsap.timeline();
-    tl.to(overlay.current, { autoAlpha: 1, duration: reduce ? 0.01 : dur.ui, ease: ease.out });
-    if (!reduce) {
+    tl.to(overlay.current, { autoAlpha: 1, duration: reduce() ? 0.01 : dur.ui, ease: ease.out, overwrite: true });
+    if (!reduce()) {
       tl.fromTo(".menu-item", { yPercent: 110 }, { yPercent: 0, duration: dur.text, ease: ease.out, stagger: stagger.lines }, "-=0.3")
         .fromTo(".menu-meta", { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: dur.text, ease: ease.out, stagger: 0.06 }, "-=0.4");
     }
     requestAnimationFrame(() => closeBtn.current?.focus());
   });
 
+  // Scroll sofort freigeben (ein Menü-Link scrollt noch während des Ausblendens zur Section), dann Overlay ausblenden
   const closeMenu = contextSafe(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("lite");
-    gsap.to(overlay.current, { autoAlpha: 0, duration: reduce ? 0.01 : dur.microSlow, ease: ease.micro, onComplete: () => {
-      setOpen(false);
-      getLenis()?.start();
-      document.documentElement.classList.remove("scroll-lock");
-    } });
+    document.documentElement.classList.remove("scroll-lock");
+    getLenis()?.start();
+    gsap.to(overlay.current, { autoAlpha: 0, duration: reduce() ? 0.01 : dur.microSlow, ease: ease.micro, overwrite: true, onComplete: () => setOpen(false) });
   });
 
   useEffect(() => {
@@ -107,18 +111,18 @@ export default function Nav() {
         </div>
       </div>
 
-      {/* Overlay-Menü */}
+      {/* Overlay-Menü: eigener Scroll-Container (overflow-y auto + overscroll contain), damit Touch-Scrollen nicht auf die Seite durchschlägt */}
       <div
         ref={overlay}
         id="site-menu"
         role="dialog"
         aria-modal="true"
         aria-label="Menü"
-        className="overscroll-contain fixed inset-0 z-[1] bg-cream text-ink"
+        className="overscroll-contain fixed inset-0 z-[1] overflow-y-auto bg-cream text-ink"
         style={{ visibility: "hidden", opacity: 0 }}
         inert={!open || undefined}
       >
-        <div className="shell flex h-full flex-col justify-between pb-8" style={{ paddingTop: "calc(var(--nav-h) + 24px)" }}>
+        <div className="shell flex min-h-full flex-col justify-between pb-8" style={{ paddingTop: "calc(var(--nav-h) + 24px)" }}>
           <nav aria-label="Menü" className="mt-6 flex flex-col gap-1">
             {nav.map((n) => (
               <div key={n.href} className="overflow-hidden border-b hairline">

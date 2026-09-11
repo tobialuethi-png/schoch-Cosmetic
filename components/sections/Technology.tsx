@@ -6,6 +6,7 @@ import { technology } from "@/lib/site";
 import Picture from "@/components/ui/Picture";
 import type { ImageName } from "@/lib/images.generated";
 import LuxButton from "@/components/ui/LuxButton";
+import { staticTop } from "@/lib/dom";
 
 /**
  * Section 5 — Technologie als «Lichtfaden» (Scroll Path / Thread Storytelling, vertikal, kein Pin).
@@ -75,8 +76,7 @@ export default function Technology() {
     const build = () => {
       const W = el.clientWidth;
       const H = el.clientHeight;
-      const base = el.getBoundingClientRect();
-      sectionTop = base.top + window.scrollY;
+      sectionTop = staticTop(el);
       vh = window.innerHeight;
       // Erster Anker = Intro-Bild: der Startpunkt (Rundkappe) liegt verdeckt hinter dem Bild, der Faden tritt unten aus ihm aus
       const pts: Pt[] = [];
@@ -201,10 +201,11 @@ export default function Technology() {
             <stop offset="0.84" stopColor="#7b3f27" />
             <stop offset="1" stopColor="#2b1e17" />
           </linearGradient>
-          {/* Lichtsaum klingt vor der Mündung aus — das tiefe Ende steht ohne hellen Rand in der Fläche */}
+          {/* Lichtsaum klingt vor der Mündung aus — das tiefe Ende steht ohne hellen Rand in der Fläche. Deckkraft im Verlauf
+              (stopOpacity) statt opacity auf dem Pfad: kein Transparenz-Puffer pro Pfad und Kachel beim Malen (mobil spürbar). */}
           <linearGradient id="tech-halo-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1000">
-            <stop offset="0" stopColor="#f6e1d2" />
-            <stop offset="0.7" stopColor="#f6e1d2" />
+            <stop offset="0" stopColor="#f6e1d2" stopOpacity="0.5" />
+            <stop offset="0.7" stopColor="#f6e1d2" stopOpacity="0.5" />
             <stop offset="0.93" stopColor="#f6e1d2" stopOpacity="0" />
           </linearGradient>
         </defs>

@@ -1,6 +1,7 @@
 "use client";
 import { useId, useRef, useState } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { flushSync } from "react-dom";
+import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import { priceGroups } from "@/lib/site";
 import { TransitionLink } from "@/components/motion/Transition";
 import { ArrowRight } from "@/components/ui/Icons";
@@ -10,6 +11,8 @@ import { dur, ease } from "@/lib/motion";
  * Section 4 — Preise: Sticky-Headline links (ein Bildschirm, bleibt stehen), Liste rechts zieht vorbei
  * (lagence #4-Prinzip, umgekehrt). Tabs über der Liste (wonder #8), nummerierte Zeilen mit Leitlinie (chic #4).
  * Conversion-Strecke → ruhig (Stufe 1): Übergang «bloom» (nur Fläche), keine Scrub-Effekte im Inhalt.
+ * Tab-Wechsel ändert die Seitenhöhe (die Fusspflege-Liste ist deutlich kürzer): synchron rendern (flushSync) und
+ * ScrollTrigger.refresh() — sonst stehen Lichtfaden, Deck-Übergänge und Footer-Gate darunter an den alten Positionen.
  */
 export default function Pricing() {
   const [active, setActive] = useState<(typeof priceGroups)[number]["id"]>("haarentfernung");
@@ -22,13 +25,12 @@ export default function Pricing() {
   const switchTo = contextSafe((id: typeof active) => {
     if (id === active) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("lite");
-    if (reduce) { setActive(id); return; }
+    const show = (next: typeof active) => { flushSync(() => setActive(next)); ScrollTrigger.refresh(); };
+    if (reduce) { show(id); return; }
     gsap.to(panel.current, { autoAlpha: 0, y: 8, duration: dur.micro, ease: ease.micro, onComplete: () => {
-      setActive(id);
-      requestAnimationFrame(() => {
-        gsap.set(panel.current, { autoAlpha: 1, y: 0 });
-        gsap.fromTo(".price-row", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: dur.microSlow, ease: ease.out, stagger: 0.03, clearProps: "transform" });
-      });
+      show(id);
+      gsap.set(panel.current, { autoAlpha: 1, y: 0 });
+      gsap.fromTo(".price-row", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: dur.microSlow, ease: ease.out, stagger: 0.03, clearProps: "transform" });
     } });
   });
 
@@ -41,7 +43,7 @@ export default function Pricing() {
   ) : null;
 
   return (
-    <section ref={root} id="preise" data-deck="bloom" className="scroll-mt-0 bg-sage" aria-labelledby="preise-title">
+    <section ref={root} id="preise" data-deck="bloom" className="bg-sage" aria-labelledby="preise-title">
       <div className="deck-inner bg-[var(--tone)]" style={{ "--tone": "var(--color-cream)" } as React.CSSProperties}>
         <div className="deck-wash" aria-hidden="true" />
         <div className="shell py-[var(--section-y)] md:grid md:grid-cols-12 md:gap-10 md:py-0 lg:gap-16">
