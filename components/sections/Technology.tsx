@@ -59,7 +59,10 @@ export default function Technology() {
     const pulse = el.querySelector<HTMLElement>(".tech-pulse");
     const cover = el.querySelector<HTMLElement>(".tech-cover");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const draw = !reduce && mode !== "lite" && !!pulse && !!cover;
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+    // Mobil (Gesetz 10): der Faden steht komplett gezeichnet — keine Deckfläche, kein Impuls, kein Scroll-Handler pro Frame,
+    // keine gescrubbten Stationen. Natives Scrollen bleibt so vollständig im Compositor-Thread.
+    const draw = !reduce && mode !== "lite" && isDesktop && !!pulse && !!cover;
 
     // Alle Punkte des Fadens (y monoton steigend), einmal gesampelt
     let samples: Pt[] = [];
@@ -137,6 +140,16 @@ export default function Technology() {
     ro.observe(el);
     let alive = true;
     document.fonts.ready.then(() => { if (alive) build(); });
+
+    if (!draw && !reduce && mode !== "lite") {
+      // Mobil: Stationen erscheinen einmalig (autoAlpha + y, once) statt gescrubbt — kein Trigger bleibt aktiv
+      el.querySelectorAll<HTMLElement>(".tech-station .tech-petal, .tech-card").forEach((item) => {
+        gsap.fromTo(item, { autoAlpha: 0, y: 32 }, {
+          autoAlpha: 1, y: 0, duration: 0.8, ease: "out",
+          scrollTrigger: { trigger: item, start: "top 90%", once: true },
+        });
+      });
+    }
 
     if (draw) {
       // will-change auf Deckfläche und Impuls nur, solange die Section im Bild ist — die Deckfläche ist viewport-gross,

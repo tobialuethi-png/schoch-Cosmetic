@@ -12,7 +12,9 @@ import { dur, ease, stagger, scroll, dist } from "@/lib/motion";
  *  data-reveal-img    Mask Wipe von links/unten + Bild scale 1.15→1, x 40→0 (lagence B3) — composite-only:
  *                     Maske (erstes Kind) fährt ein, das Bild darin fährt gegenläufig → das Bild steht, die Kante wandert.
  *  data-count         Counter mit Snap
- *  data-parallax      Bild-Parallax im overflow-hidden-Wrapper (scale 1.16, y ∓8 % in px, scrub)
+ *  data-parallax      Bild-Parallax im overflow-hidden-Wrapper (scale 1.16, yPercent ∓8, scrub) — nur über den Eintritt der
+ *                     Karte (Dokumentposition via offsetTop-Kette, endet sobald eine Sticky-Karte steht); der Wipe-Ausgleich
+ *                     schreibt y/x in px → getrennte Transform-Komponenten, kein Doppel-Schreiber auf dem <img>.
  *  data-deck          Section-Übergang (Stacked Cards): zoom / rise / cover / bloom / bloom-l / bloom-c / bloom-r / bloom-b / petal für die eintretende Karte,
  *                     die vorherige dunkelt leicht ab. Nur Desktop.
  *  data-scene         Section-Choreografie (≥ 1024 px): alle Reveal-Elemente der Section laufen in EINER Timeline
@@ -110,7 +112,9 @@ export default function MotionScope({ children, className }: { children: ReactNo
                 },
                 onComplete: () => { if (setBack) { setBack(0); gsap.set(img, { clearProps: "willChange" }); } },
               }, at);
-            if (cleanup) { cleanup.push(wrap, mask); if (img && img !== mask) cleanup.push(img); }
+            // Parallax-Bilder behalten ihre Transform (yPercent/scale werden vom Scrub geführt) — clearProps würde sie
+            // auf scale 1 zurückwerfen, bis der nächste Scroll-Tick sie wieder setzt (sichtbarer Sprung).
+            if (cleanup) { cleanup.push(wrap, mask); if (img && img !== mask && !img.hasAttribute("data-parallax")) cleanup.push(img); }
           };
           solo<HTMLElement>("[data-reveal-img]").forEach((wrap) => {
             const tl = gsap.timeline({ scrollTrigger: { ...triggerFor(wrap), toggleActions: "play none none reverse" } });
@@ -237,14 +241,20 @@ export default function MotionScope({ children, className }: { children: ReactNo
             raf = requestAnimationFrame(() => { raf = requestAnimationFrame(run); });
           });
 
-          // data-parallax — nur Desktop (Gesetz 10). Versatz in px (funktionsbasiert, invalidateOnRefresh), Scale konstant.
+          // data-parallax — nur Desktop (Gesetz 10). yPercent ∓8 (Scale 1.16 deckt genau ±8 %), Scale konstant.
+          // Positionen als Zahlen aus der offsetTop-Kette: ein getBoundingClientRect auf einer stehenden Sticky-Karte
+          // würde beim Refresh (Fonts, Lazy-Bilder, Resize) den Sticky-Versatz mitmessen → Start/Ende verrutschen → Sprung.
+          // In einer Sticky-Karte endet der Versatz, sobald die Karte steht (top = 0): sonst zieht das Bild weiter,
+          // während die Karte und der Text stehen (spürbares «Schwimmen» hinter dem Scroll).
           if (isDesktop) {
             gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((img) => {
               const wrap = (img.closest(".img-frame") ?? img.parentElement) as HTMLElement;
-              const amp = () => wrap.offsetHeight * 0.08;
-              gsap.fromTo(img, { y: () => -amp(), scale: 1.16 }, {
-                y: () => amp(), scale: 1.16, ease: "none",
-                scrollTrigger: { trigger: wrap, start: "top bottom", end: "bottom top", scrub: 1, invalidateOnRefresh: true },
+              const card = img.closest<HTMLElement>(".stack-card");
+              const start = () => docTop(card ?? wrap) - window.innerHeight;
+              const end = () => (card ? docTop(card) : docTop(wrap) + wrap.offsetHeight);
+              gsap.fromTo(img, { yPercent: -8, scale: 1.16 }, {
+                yPercent: 8, scale: 1.16, ease: "none",
+                scrollTrigger: { trigger: wrap, start, end, scrub: 0.5, invalidateOnRefresh: true },
               });
             });
           }

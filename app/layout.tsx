@@ -6,7 +6,6 @@ import SmoothScroll from "@/components/motion/SmoothScroll";
 import { TransitionProvider } from "@/components/motion/Transition";
 import PageMotion from "@/components/motion/PageMotion";
 import Nav from "@/components/Nav";
-import BottomBar from "@/components/BottomBar";
 import Footer from "@/components/sections/Footer";
 
 const serif = Instrument_Serif({ weight: "400", style: ["normal", "italic"], subsets: ["latin"], variable: "--font-instrument-serif", display: "swap" });
@@ -69,7 +68,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="main" className="relative z-[2]">{children}</main>
             <Footer />
           </PageMotion>
-          <BottomBar />
         </TransitionProvider>
       </body>
     </html>

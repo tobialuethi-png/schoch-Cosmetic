@@ -537,9 +537,17 @@ html.lite .tech-pulse, .no-js .tech-pulse { display: none; }
    Fallback ohne Scroll-Timelines (ältere Browser): Fläche steht, runde Ecken bleiben.
    ============================================================ */
 @media (max-width: 767px) {
-  /* Stapel: jede Karte liegt 28 px über der vorherigen Fläche; Stapelreihenfolge über z-index der Karten */
+  /* Stapel: jede Karte liegt 28 px über der vorherigen Fläche (die Farbe des Vorgängers zeigt sich in den Ecken);
+     Stapelreihenfolge über z-index der Karten. Ein weicher Schatten an der Oberkante gibt dem Stapel Tiefe — statisch
+     gemalt, keine Animation. Der Hero liegt normal im Fluss (kein sticky, kein Dim, kein Recede). */
   .stack-card { position: relative; border-radius: 28px 28px 0 0; margin-top: -28px; padding-top: calc(var(--section-y) + 16px); }
+  .stack-card, .deck-inner { box-shadow: 0 -18px 40px -12px rgb(43 30 23 / 0.16); }
+  [data-deck] { position: relative; z-index: 4; }
   .deck-inner { border-radius: 28px 28px 0 0; overflow: clip; }
+  /* Desktop-Dim-Ebene und Wachs-Fläche gibt es mobil nicht (MotionScope setzt Decks nur ab 768 px) */
+  .deck-inner::after, .deck-wash { display: none; }
+  /* Lichtfaden mobil komplett gezeichnet: keine Deckfläche, kein Impuls, kein JS pro Frame (Technology.tsx) */
+  .tech-cover, .tech-pulse { display: none; }
   /* Lichtfaden: 40 px Kern (vorher 64) — auf 390 px Breite war der Faden ein Sechstel des Bildschirms */
   .tech-thread .th-halo { stroke-width: 84px; }
   .tech-thread .th-core { stroke-width: 40px; }
@@ -551,132 +559,6 @@ html.lite .tech-pulse, .no-js .tech-pulse { display: none; }
   .tab-pill { padding-inline: 12px; font-size: 12px; letter-spacing: 0.1em; }
 }
 
-/* ============================================================
-   Mobil — Übergangs-Dramaturgie wie am Desktop, rein per CSS Scroll-Timeline (Compositor-Thread, kein JS pro Frame).
-   Jede Karte (Stack-Karten UND Decks) läuft nach demselben Schema über ihre eigene View-Timeline:
-     Karte aussen  = Farbe des Vorgängers (die Karte ist beim Eintritt unsichtbar, die Fläche läuft nahtlos weiter)
-     ::before      = Dim der Aussenfläche (synchron mit dem Dim des Vorgängers → keine Kante am Kartenrand)
-     .deck-wash    = eigene Farbe, wächst als Blattform (Hero-Markenform) oder Ellipse aus der Oberkante; bei 100 %
-                     rastet sie als volle, unskalierte Fläche ein (einfarbige Ebene, kein Raster) — das ist das «Settle»
-     > .shell      = Inhalt blendet ab 76 % ein (erst die Farbe, dann der Inhalt)
-     ::after       = Dim des Vorgängers, gesteuert von der Timeline der NÄCHSTEN Karte (timeline-scope auf <main>)
-   Richtungen wechseln: Statement Blatt rechts · Leistungen Blatt links · Fusspflege Blatt rechts · Preise Ellipse oben ·
-   FAQ Blatt links · Kontakt Ellipse oben · Beratung (Behandlungsplan) Ellipse oben.
-   Hero: sticky statt fixed (kein Sprung bei ein-/ausblendender Adressleiste), dunkelt ab und tritt zurück, nach dem
-   Überdecken visibility hidden → keine Ebene im Leerlauf. Nur ab 720 px Höhe (Hero passt dann sicher in einen Bildschirm).
-   Longhands statt animation-Kurzschrift: Lightning CSS expandiert die Kurzschrift zu animation-duration: 0s — bei
-   Scroll-Timelines muss die Dauer auto bleiben. Keine Step-Timings, keine background-color-Animationen (Compositor
-   rendert sie vorzeitig als Endwert) — nur transform/opacity, Sprünge über Keyframes 99.9 % → 100 %.
-   Fallback (kein Scroll-Timeline-Support, reduced motion, Lite): Karten stehen mit runden Ecken, keine Bewegung.
-   ============================================================ */
-@supports (animation-timeline: view()) and (timeline-scope: --a) {
-  @media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
-    html:not(.lite):not(.no-js) main { timeline-scope: --tl-statement, --tl-leistungen, --tl-fusspflege, --tl-preise, --tl-faq, --tl-kontakt; }
-    html:not(.lite):not(.no-js) #statement { view-timeline-name: --tl-statement, --deck; view-timeline-axis: block, block; }
-    html:not(.lite):not(.no-js) #leistungen { view-timeline-name: --tl-leistungen, --deck; view-timeline-axis: block, block; }
-    html:not(.lite):not(.no-js) #fusspflege { view-timeline-name: --tl-fusspflege, --deck; view-timeline-axis: block, block; }
-    html:not(.lite):not(.no-js) #preise > .deck-inner { view-timeline: --tl-preise block; }
-    html:not(.lite):not(.no-js) #faq > .deck-inner { view-timeline: --tl-faq block; }
-    html:not(.lite):not(.no-js) #kontakt > .deck-inner { view-timeline: --tl-kontakt block; }
-    html:not(.lite):not(.no-js) [data-deck^="bloom"] { view-timeline: --deck block; }
-
-    /* --- Karte: aussen Vorgängerfarbe, innen transparent bis zur Blüte ------------------------------------------ */
-    html:not(.lite):not(.no-js) .stack-card, html:not(.lite):not(.no-js) [data-deck^="bloom"] > .deck-inner { overflow: clip; }
-    html:not(.lite):not(.no-js) #statement { --tone: var(--color-linen); background: transparent; }   /* aussen = Hero (sticky dahinter) */
-    html:not(.lite):not(.no-js) #leistungen { --tone: var(--color-apricot); background: var(--color-linen); }
-    html:not(.lite):not(.no-js) #fusspflege { --tone: var(--color-sage); background: var(--color-apricot); }
-    html:not(.lite):not(.no-js) [data-deck^="bloom"] > .deck-inner { background: transparent; }
-
-    /* Dim der Aussenfläche (::before) — nicht beim Statement (dort dimmt der Hero selbst, die Fläche ist transparent) */
-    html:not(.lite):not(.no-js) #leistungen::before, html:not(.lite):not(.no-js) #fusspflege::before,
-    html:not(.lite):not(.no-js) [data-deck^="bloom"] > .deck-inner::before {
-      content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background: var(--color-ink); opacity: 0;
-      animation-name: deck-dim; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
-      animation-timeline: --deck; animation-range: cover 0px cover 85svh;
-    }
-
-    /* Wachsende Fläche (.deck-wash) — Basis: Ellipse aus der Oberkante */
-    html:not(.lite):not(.no-js) .stack-card > .deck-wash, html:not(.lite):not(.no-js) [data-deck^="bloom"] > .deck-inner > .deck-wash {
-      display: block; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background: var(--tone); border-radius: 50%; transform-origin: 50% 50%;
-      animation-name: deck-bloom; animation-duration: auto; animation-timing-function: ease-in; animation-fill-mode: both;
-      animation-timeline: --deck; animation-range: cover 0px cover 85svh;
-    }
-    /* Blattform rechts (Hero-Markenform, Origin obere rechte Ecke) */
-    html:not(.lite):not(.no-js) #statement > .deck-wash, html:not(.lite):not(.no-js) #fusspflege > .deck-wash,
-    html:not(.lite):not(.no-js) [data-deck="bloom-r"] > .deck-inner > .deck-wash {
-      border-radius: 40% 12% 40% 12% / 36% 10% 36% 10%; transform-origin: 82% 6%; animation-name: deck-petal-r;
-    }
-    /* Blattform links (gespiegelt, Origin obere linke Ecke) */
-    html:not(.lite):not(.no-js) #leistungen > .deck-wash, html:not(.lite):not(.no-js) [data-deck="bloom-l"] > .deck-inner > .deck-wash {
-      border-radius: 12% 40% 12% 40% / 10% 36% 10% 36%; transform-origin: 18% 6%; animation-name: deck-petal-l;
-    }
-
-    /* Inhalt: erst die Farbe, dann der Inhalt */
-    html:not(.lite):not(.no-js) .stack-card > .shell, html:not(.lite):not(.no-js) [data-deck^="bloom"] > .deck-inner > .shell {
-      animation-name: deck-content; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
-      animation-timeline: --deck; animation-range: cover 0px cover 85svh;
-    }
-
-    /* --- Dim des Vorgängers (::after), gesteuert von der Timeline der nächsten Karte ---------------------------- */
-    html:not(.lite):not(.no-js) .stack-card::after, html:not(.lite):not(.no-js) #ueber-mich::after {
-      content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none;
-      background: var(--color-ink); opacity: 0;
-      animation-name: deck-dim; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
-      animation-range: cover 0px cover 85svh;
-    }
-    html:not(.lite):not(.no-js) #ueber-mich { position: relative; }
-    html:not(.lite):not(.no-js) #statement::after { animation-timeline: --tl-leistungen; }
-    html:not(.lite):not(.no-js) #leistungen::after { animation-timeline: --tl-fusspflege; }
-    html:not(.lite):not(.no-js) #fusspflege::after { animation-timeline: --tl-preise; }
-    html:not(.lite):not(.no-js) #ueber-mich::after { animation-timeline: --tl-faq; }
-    html:not(.lite):not(.no-js) #faq > .deck-inner::after {
-      animation-name: deck-dim; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
-      animation-timeline: --tl-kontakt; animation-range: cover 0px cover 85svh;
-    }
-
-    /* --- Hero-Cover: Hero bleibt stehen, Statement (Blatt) wächst darüber; Hero dunkelt ab und tritt zurück -------- */
-    @media (min-height: 720px) {
-      html:not(.lite):not(.no-js) #top { position: sticky; top: 0; z-index: 0; }
-      html:not(.lite):not(.no-js) #top .hero-layer {
-        animation-name: hero-off; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
-        animation-timeline: --tl-statement; animation-range: cover 0px cover 125svh;
-      }
-      html:not(.lite):not(.no-js) #top .hero-layer::after {
-        content: ""; position: absolute; inset: 0; z-index: 10; pointer-events: none;
-        background: var(--color-ink); opacity: 0;
-        animation-name: deck-dim; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
-        animation-timeline: --tl-statement; animation-range: cover 0px cover 85svh;
-      }
-      html:not(.lite):not(.no-js) #top .hero-layer > .shell {
-        transform-origin: 50% 30%;
-        animation-name: hero-recede; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
-        animation-timeline: --tl-statement; animation-range: cover 0px cover 85svh;
-      }
-    }
-  }
-}
-/* Ellipse aus der Oberkante; bei 100 % rastet die Fläche unskaliert ein (volle Karte, keine Skalierung, kein Raster) */
-@keyframes deck-bloom {
-  from { transform: translateY(-44%) scale(0.22); }
-  99.9% { transform: translateY(0) scale(1.5); border-radius: 50%; }
-  100% { transform: none; border-radius: 0; }
-}
-@keyframes deck-petal-r {
-  from { transform: scale(0.1); }
-  99.9% { transform: scale(2.4); border-radius: 40% 12% 40% 12% / 36% 10% 36% 10%; }
-  100% { transform: none; border-radius: 0; }
-}
-@keyframes deck-petal-l {
-  from { transform: scale(0.1); }
-  99.9% { transform: scale(2.4); border-radius: 12% 40% 12% 40% / 10% 36% 10% 36%; }
-  100% { transform: none; border-radius: 0; }
-}
-@keyframes deck-content { 0%, 76% { opacity: 0; } 100% { opacity: 1; } }
-@keyframes deck-dim { from { opacity: 0; } to { opacity: 0.2; } }
-@keyframes hero-off { 0%, 99.9% { visibility: visible; } 100% { visibility: hidden; } }
-@keyframes hero-recede { from { transform: scale(1); } to { transform: scale(0.94); } }
 
 /* Touch-Feinschliff: kein grauer Tap-Blitz (die Active-States der Buttons sind das Feedback), kein Doppeltipp-Zoom auf Bedienelementen */
 a, button, [role="button"], label { -webkit-tap-highlight-color: transparent; }

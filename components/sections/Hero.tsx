@@ -97,9 +97,9 @@ export default function Hero() {
   return (
     <section ref={section} id="top" className="relative md:h-[100svh] md:min-h-[680px]" aria-labelledby="hero-title">
       <div ref={layer} className="hero-layer hero-wash relative z-0 text-ink md:absolute md:inset-0 md:overflow-hidden">
-        {/* Mobil: ein Bildschirm (100svh), Reihenfolge Headline → Bild → CTA (Text-Spalte per display: contents aufgelöst),
-            unten Platz für die Bottom-Bar (64 px) — nichts hängt über die Falz. Ab md: Split-Layout wie bisher. */}
-        <div className="shell flex min-h-[100svh] flex-col justify-center pt-[calc(var(--nav-h)+16px)] pb-[84px] md:h-full md:min-h-0 md:pt-[calc(var(--nav-h)+24px)] md:pb-6" style={{ maxWidth: "calc(1760px + 2 * var(--gutter))" }}>
+        {/* Mobil: ein Bildschirm (100svh), Reihenfolge Headline → Bild → CTA (Text-Spalte per display: contents aufgelöst).
+            Ab md: Split-Layout wie bisher. */}
+        <div className="shell flex min-h-[100svh] flex-col justify-center pt-[calc(var(--nav-h)+16px)] pb-12 md:h-full md:min-h-0 md:pt-[calc(var(--nav-h)+24px)] md:pb-6" style={{ maxWidth: "calc(1760px + 2 * var(--gutter))" }}>
           <div className="grid items-center gap-7 md:grid-cols-12 md:gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-10">
             {/* Text — links, zentriert: nur Headline + ein CTA */}
             <div className="contents text-center md:block md:col-span-6 lg:col-span-1 md:[container-type:inline-size]">
