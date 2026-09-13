@@ -162,6 +162,8 @@ export const images = {
     "width": 458,
     "height": 362,
     "widths": [
+      96,
+      192,
       458
     ],
     "fallback": "png",

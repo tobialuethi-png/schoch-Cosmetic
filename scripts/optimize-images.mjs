@@ -6,6 +6,7 @@
  * Kein Upscaling: Breiten > Quellbreite werden übersprungen, die Quellbreite wird ergänzt —
  * Ausnahme PRESETS.upscaleTo (Lanczos3 + Nachschärfen) für Quellen, die kleiner sind als ihre Darstellung (Retina).
  * Voll-opake PNGs (Alpha überall 255) werden als JPEG behandelt (kein 1.4-MB-PNG-Fallback).
+ * PRESETS.widths ergänzt die Standard-Breiten um kleinere Stufen (Logo: 96/192 für ein 46–71 px breites Bild).
  * Idempotent: bereits vorhandene Varianten (gleiche mtime-Signatur) werden nicht neu gerechnet.
  */
 import sharp from "sharp";
@@ -23,10 +24,14 @@ const CACHE = path.join(OUT, ".cache.json");
 const WIDTHS = [480, 768, 1200, 1600, 2400];
 const QUALITY = { avif: 55, webp: 74, jpeg: 80 };
 const MAX_SOURCE_W = 2400; // produkt.jpg ist 4934 px breit — nie grösser als nötig dekodieren
-/** Pro-Bild-Ausnahmen: quality überschreibt QUALITY, upscaleTo erlaubt Vergrösserung bis zu dieser Breite (Lanczos3 + sharpen). */
+/** Pro-Bild-Ausnahmen: quality überschreibt QUALITY, upscaleTo erlaubt Vergrösserung bis zu dieser Breite (Lanczos3 + sharpen),
+ *  widths fügt zusätzliche Stufen unterhalb der Quellbreite hinzu (die Quellbreite bleibt immer der grösste Kandidat). */
 const PRESETS = {
   // Porträt Über-mich: Original nur 818×615 px, Darstellung bis ~600 px hoch auf Retina → 2× Lanczos + leichte Schärfung
   schochxy: { quality: { avif: 62, webp: 82, jpeg: 84 }, upscaleTo: 1636, sharpen: { sigma: 0.7, m1: 0.25, m2: 0.9 } },
+  // Logo: 36–56 px hoch dargestellt (≈ 46–71 px breit). Als Dichte-Kandidaten eingebunden (1x = 96, 2x = 192, 3x = 458):
+  // der Browser verkleinert so immer selbst um rund Faktor 2 statt eine fast 1:1 grosse Datei nochmals zu resampeln.
+  "logo-schoch-cosmetic": { widths: [96, 192] },
 };
 
 const slug = (file) => path.basename(file, path.extname(file)).replace(/[^a-z0-9-]/gi, "-");
@@ -52,7 +57,8 @@ async function main() {
     const srcW = maxW;
     const srcH = Math.round(meta.height * (srcW / meta.width));
     // Stufen knapp unter der Quellbreite (< 10 % Unterschied) sind Duplikate → weglassen
-    const widths = [...new Set([...WIDTHS.filter((w) => w < srcW * 0.9), srcW])].sort((a, b) => a - b);
+    const steps = [...WIDTHS, ...(preset.widths ?? [])];
+    const widths = [...new Set([...steps.filter((w) => w < srcW * 0.9), srcW])].sort((a, b) => a - b);
     const fallback = hasAlpha ? "png" : "jpg";
     manifest[name] = { width: srcW, height: srcH, widths, fallback, alpha: hasAlpha };
     const sigP = `${sig}-${JSON.stringify(preset)}`;
