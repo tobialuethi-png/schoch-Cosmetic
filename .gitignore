@@ -12,3 +12,4 @@ reports/compare
 # QA-Arbeitsmaterial (Screenshots, Vergleiche)
 reports/
 .playwright-mcp/
+site.zip

@@ -1,5 +1,4 @@
 # Hostinger (Apache / LiteSpeed) – Regeln für den statischen Next.js-Export.
-# Entspricht public/_redirects (Cloudflare-Pages-Format, wird von Hostinger ignoriert).
 
 AddDefaultCharset UTF-8
 Options -Indexes
@@ -9,10 +8,16 @@ ErrorDocument 404 /404/index.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Next.js Static Export: Segment-Prefetch der Unterseiten
-  # (Datei liegt im Ordner, Client fragt mit Punkt)
-  RewriteRule ^behandlungsplan/__next\.behandlungsplan\.__PAGE__\.txt$ /behandlungsplan/__next.behandlungsplan/__PAGE__.txt [L]
-  RewriteRule ^impressum/__next\.impressum\.__PAGE__\.txt$ /impressum/__next.impressum/__PAGE__.txt [L]
+  # 1) ohne www -> mit www, ein Hop
+  RewriteCond %{HTTP_HOST} ^schoch-cosmetic\.ch$ [NC]
+  RewriteRule ^ https://www.schoch-cosmetic.ch%{REQUEST_URI} [R=301,L]
+
+  # 2) Next.js Prefetch: angefragte Datei auf die exportierte Ordnerstruktur mappen
+  RewriteRule ^(.+)/__next\.([^/]+)\.__PAGE__\.txt$ $1/__next.$2/__PAGE__.txt [L]
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
 
   # Alte Wix-Pfade → neue Anker (NE = "#" nicht escapen)
   RewriteRule ^(mpl4-technologie|mpl4|technologie)/?$ /#technologie [R=301,NE,L]
@@ -27,21 +32,29 @@ ErrorDocument 404 /404/index.html
   RewriteRule ^home/?$ / [R=301,L]
 </IfModule>
 
-# Caching: gehashte Build-Dateien dauerhaft, HTML immer neu prüfen
-<IfModule mod_expires.c>
-  ExpiresActive On
-  <FilesMatch "\.(js|css|woff2?|png|jpe?g|webp|avif|svg|ico)$">
-    ExpiresDefault "access plus 1 year"
-  </FilesMatch>
-  <FilesMatch "\.(html|txt|xml)$">
-    ExpiresDefault "access plus 0 seconds"
+# 3) Security-Header
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Content-Security-Policy "upgrade-insecure-requests; frame-ancestors 'self'; object-src 'none'; base-uri 'self'"
+  Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# 4) JS, CSS und Fonts ein Jahr cachen
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
 </IfModule>
+
+# 5) HTML, Textdateien und XML immer neu prüfen (nach Deploy nie veraltete Seite aus dem Browser-Cache)
 <IfModule mod_headers.c>
   <FilesMatch "\.(html|txt|xml)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
-  Header set X-Content-Type-Options "nosniff"
 </IfModule>
 
 # Kompression
