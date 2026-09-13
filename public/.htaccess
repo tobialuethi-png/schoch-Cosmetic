@@ -12,7 +12,10 @@ ErrorDocument 404 /404/index.html
   RewriteCond %{HTTP_HOST} ^schoch-cosmetic\.ch$ [NC]
   RewriteRule ^ https://www.schoch-cosmetic.ch%{REQUEST_URI} [R=301,L]
 
-  # 2) Next.js Prefetch: angefragte Datei auf die exportierte Ordnerstruktur mappen
+  # 2) Next.js Prefetch: der Build legt die Segment-Datei flach ab (scripts/flatten-segments.mjs,
+  #    z. B. /behandlungsplan/__next.behandlungsplan.__PAGE__.txt). Fehlt die flache Datei,
+  #    auf die exportierte Ordnerstruktur mappen.
+  RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^(.+)/__next\.([^/]+)\.__PAGE__\.txt$ $1/__next.$2/__PAGE__.txt [L]
 </IfModule>
 

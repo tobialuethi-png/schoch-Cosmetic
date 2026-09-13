@@ -8,6 +8,7 @@
     "images": "node scripts/optimize-images.mjs",
     "prebuild": "node scripts/optimize-images.mjs",
     "build": "next build",
+    "postbuild": "node scripts/flatten-segments.mjs",
     "start": "npx serve out -l 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
