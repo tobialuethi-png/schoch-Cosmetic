@@ -36,11 +36,15 @@ export default function Pricing() {
 
   const group = priceGroups.find((g) => g.id === active)!;
 
-  const note = active === "haarentfernung" ? (
+  // Hinweis zum Behandlungsplan: in BEIDEN Tabs gerendert, damit das Element dauerhaft im DOM bleibt. Es trägt data-reveal,
+  // und MotionScope registriert Reveal-Elemente nur einmal beim Laden — ein nach einem Tab-Wechsel neu gemountetes Element
+  // bliebe per CSS (visibility: hidden) für immer unsichtbar. Genau das war der Fehler beim bedingten Rendern (nur Haarentfernung):
+  // Fusspflege → Haarentfernung = Link weg, auf Desktop (Sticky-Spalte) wie auf Mobil (Footer unter der Liste).
+  const note = (
     <TransitionLink href="/behandlungsplan/" className="link-arrow text-orange-ink">
       Wie viele Sitzungen brauche ich? Zum Behandlungsplan <ArrowRight />
     </TransitionLink>
-  ) : null;
+  );
 
   return (
     <section ref={root} id="preise" data-deck="bloom" className="bg-sage" aria-labelledby="preise-title">
@@ -81,7 +85,7 @@ export default function Pricing() {
                 );
               })}
             </div>
-            {note && <div className="mt-10 hidden md:block" data-reveal>{note}</div>}
+            <div className="mt-10 hidden md:block" data-reveal>{note}</div>
           </header>
 
           {/* Liste: zieht an der Sticky-Spalte vorbei */}
@@ -102,7 +106,7 @@ export default function Pricing() {
                 </div>
               ))}
             </div>
-            {note && <footer className="mt-8 md:hidden" data-reveal>{note}</footer>}
+            <footer className="mt-8 md:hidden" data-reveal>{note}</footer>
           </div>
         </div>
       </div>
