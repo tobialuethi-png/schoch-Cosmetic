@@ -132,10 +132,15 @@ export default function MotionScope({ children, className }: { children: ReactNo
             tl.set(el, { clearProps: "willChange" }, at + 1.65);
           };
 
+          // SplitText-ARIA: "auto" setzt aria-label (Originaltext) auf das Element und aria-hidden auf die Zeilen — auf
+          // <p>/<blockquote> ist aria-label unzulässig (kein Rollentyp, axe «aria-prohibited-attr»), dort "none":
+          // keine ARIA-Attribute, die Zeilen bleiben für Screenreader normal lesbar. Überschriften behalten "auto".
+          const ariaFor = (el: HTMLElement): "auto" | "none" => (/^H[1-6]$/.test(el.tagName) ? "auto" : "none");
+
           // data-reveal-text — Masked Line Reveal (solo)
           const splitSolo = (el: HTMLElement) => {
             SplitText.create(el, {
-              type: "lines", mask: "lines", autoSplit: true, linesClass: "split-line",
+              type: "lines", mask: "lines", autoSplit: true, linesClass: "split-line", aria: ariaFor(el),
               onSplit: (self) => {
                 gsap.set(el, { autoAlpha: 1 });
                 return gsap.from(self.lines, {
@@ -169,7 +174,7 @@ export default function MotionScope({ children, className }: { children: ReactNo
 
               if (el.hasAttribute("data-reveal-text")) {
                 SplitText.create(el, {
-                  type: "lines", mask: "lines", autoSplit: true, linesClass: "split-line",
+                  type: "lines", mask: "lines", autoSplit: true, linesClass: "split-line", aria: ariaFor(el),
                   onSplit: (self) => {
                     if (done) return;
                     if (!splits.includes(self)) splits.push(self);
