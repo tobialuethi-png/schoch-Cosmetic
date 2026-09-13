@@ -11,7 +11,8 @@ import { TransitionLink } from "@/components/motion/Transition";
  * Bilder mit Mask Wipe / Clip Reveal (kein Parallax: die Sticky-Collage würde mit scrub nachziehen und die 1.16-Skalierung
  * schneidet beim 818×615-Porträt die Haare ab). Ab 1024 px läuft die ganze Section als EINE Szene (data-scene):
  * beide Bilder zeitgleich bei 0 s, danach Jahre → Name → Rolle → Zitat → Absätze → CTA — ein Takt, keine Einzel-Trigger.
- * Bilder eager (vorab dekodiert), damit der Wipe nie auf ein leeres Bild läuft.
+ * Bilder lazy: die Section liegt weit unter dem ersten Bildschirm, der Browser lädt lazy-Bilder ohnehin ein bis zwei
+ * Bildschirmhöhen vor dem Eintritt — der Wipe (Trigger ab 75 % Viewport) trifft so auf ein fertiges Bild.
  */
 export default function About() {
   const years = new Date().getFullYear() - site.since;
@@ -23,10 +24,10 @@ export default function About() {
           <div data-reveal-scope className="md:sticky md:top-0 md:col-span-5 md:flex md:h-[100svh] md:flex-col md:justify-center md:self-start md:pt-[var(--nav-h)]">
             <div className="relative pb-16 pr-16 md:pb-20 md:pr-20">
               <div className="img-frame aspect-[4/5] max-w-[460px] md:h-[min(58svh,600px)] md:w-auto md:max-w-none" data-reveal-img>
-                <Picture name={about.image} alt={about.imageAlt} sizes="(min-width: 768px) 490px, 80vw" eager className="block h-full w-full" imgClassName="h-full w-full object-cover" position="54% 0%" />
+                <Picture name={about.image} alt={about.imageAlt} sizes="(min-width: 768px) 490px, 80vw" className="block h-full w-full" imgClassName="h-full w-full object-cover" position="54% 0%" />
               </div>
               <div className="img-frame absolute bottom-0 right-0 aspect-[3/4] w-[46%] max-w-[240px] shadow-[var(--shadow-soft)]" data-reveal-img="bottom" data-at="0">
-                <Picture name={about.secondImage as ImageName} alt={about.secondImageAlt} sizes="240px" eager imgClassName="h-full w-full object-cover" position="50% 40%" />
+                <Picture name={about.secondImage as ImageName} alt={about.secondImageAlt} sizes="240px" imgClassName="h-full w-full object-cover" position="50% 40%" />
               </div>
             </div>
             <div className="mt-4 flex items-end gap-6 md:mt-5" data-reveal>
