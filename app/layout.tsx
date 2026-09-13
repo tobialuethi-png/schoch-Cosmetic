@@ -50,12 +50,18 @@ const jsonLd = {
   ],
 };
 
+const speculationRules = { prefetch: [{ urls: ["/behandlungsplan/", "/impressum/"], eagerness: "moderate" }] };
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de-CH" className={`no-js ${serif.variable} ${sans.variable} ${display.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.remove('no-js')" }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        {/* Speculation Rules: HTML der Unterseiten bei Hover/Pointerdown vorab holen (prefetch, nicht prerender — ein
+            vorgerendertes Dokument hätte seine Eintrittsanimationen schon unsichtbar abgespielt). Wirkt bei harten
+            Navigationen, etwa Klicks vor der Hydration; Klicks über TransitionLink laufen weiter über den Next-Router. */}
+        <script type="speculationrules" dangerouslySetInnerHTML={{ __html: JSON.stringify(speculationRules) }} />
       </head>
       <body>
         <a href="#main" className="skip-link">Zum Inhalt springen</a>
