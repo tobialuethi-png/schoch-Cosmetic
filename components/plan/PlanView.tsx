@@ -7,7 +7,9 @@ import { scrollToTarget } from "@/lib/lenis";
 const zoneId = (zone: string) => `zone-${zone.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
 /* Eine Zone = Name in Serif + Preis, darunter eine ruhige Meta-Zeile (Sitzungen · Dauer · Abstand · Gesamt).
-   Trennung nur über Luft (frontend-taste §3: erst Luft, dann Hairline, dann Karte). */
+   Trennung nur über Luft (frontend-taste §3: erst Luft, dann Hairline, dann Karte). Die sichtbaren Trennpunkte sind
+   leere CSS-Kreise; damit Text-Extraktion und Screenreader die Angaben nicht zusammenziehen («Behandlungenca.»),
+   steht vor jeder weiteren Angabe ein unsichtbares «, » (sr-only, position: absolute — kein Einfluss auf das Layout). */
 function Row({ e }: { e: PlanEntry }) {
   const meta = [e.sessions, e.duration, e.interval, `${e.total} gesamt`];
   return (
@@ -20,6 +22,7 @@ function Row({ e }: { e: PlanEntry }) {
       <dd className="t-small tnum mt-2.5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-umber md:mt-3 md:block">
         {meta.map((m, i) => (
           <span key={m} className="md:inline-block md:whitespace-nowrap">
+            {i > 0 && <span className="sr-only">, </span>}
             {i > 0 && <span aria-hidden="true" className="mx-2.5 hidden h-1 w-1 translate-y-[-0.2em] rounded-full bg-orange md:inline-block" />}
             {m}
           </span>
