@@ -61,7 +61,8 @@ export const nav = [
 ] as const;
 
 export const hero = {
-  eyebrow: "Permanente Haarentfernung · Fusspflege · Neukirch-Egnach",
+  /* Eyebrow innerhalb der <h1> (Content-Audit: Leistung + Ort in der H1), sichtbare Headline-Zeilen unverändert */
+  eyebrow: "Permanente Haarentfernung in Neukirch-Egnach",
   /* Zeilen der Headline; *Wort* = Italic-Akzent in Orange */
   lines: ["Sanftes Licht.", "*Dauerhaft*", "glatte Haut."],
   slogan: "Schmerzlos. Harmlos. Haarlos.",

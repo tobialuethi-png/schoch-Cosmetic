@@ -74,6 +74,8 @@ export default function Hero() {
         .fromTo(q(".hero-collage"), { y: isDesktop ? 48 : 24 }, { y: 0, duration: 1.5, ease: ease.reveal }, "in")
         // will-change während des Zooms: der Compositor rastert das Bild einmal statt bei jedem Scale-Schritt neu
         .fromTo(q(".hero-img"), { scale: 1.12, willChange: "transform" }, { scale: 1, duration: dur.heroTotal, ease: ease.reveal, clearProps: "willChange" }, "in")
+        // Eyebrow blendet knapp vor den Headline-Zeilen ein (eigener Tween, die Zeilen-Choreografie bleibt unverändert)
+        .fromTo(q(".hero-eyebrow"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.8 }, "in+=0.25")
         // Headline: Zeilen aus der Maske (visibility im selben Tick wie yPercent 110 → kein FOUC)
         .fromTo(q(".hero-line"), { yPercent: 110, visibility: "visible" }, { yPercent: 0, duration: 1.0, stagger: stagger.lines + 0.01 }, "in+=0.35")
         // Details
@@ -104,6 +106,8 @@ export default function Hero() {
             {/* Text — links, zentriert: nur Headline + ein CTA */}
             <div className="contents text-center md:block md:col-span-6 lg:col-span-1 md:[container-type:inline-size]">
               <h1 id="hero-title" className="t-hero order-1 md:order-none">
+                {/* Eyebrow als erste Zeile der H1: Eyebrow-Typografie (t-eyebrow) in der Textschrift, Orange-Ink wie die übrigen Eyebrows */}
+                <span className="hero-eyebrow gs-reveal t-eyebrow mb-5 block font-sans text-orange-ink md:mb-7">{hero.eyebrow}</span>
                 {hero.lines.map((line) => (
                   <span key={line} className="block pb-[0.1em] -mb-[0.1em] [clip-path:inset(0_-40%_0_-40%)]">
                     <span className="hero-line block whitespace-nowrap">
