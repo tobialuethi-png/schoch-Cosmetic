@@ -1,6 +1,7 @@
 # Hostinger (Apache / LiteSpeed) – Regeln für den statischen Next.js-Export.
 
 AddDefaultCharset UTF-8
+AddType application/manifest+json .webmanifest
 Options -Indexes
 DirectoryIndex index.html
 ErrorDocument 404 /404/index.html

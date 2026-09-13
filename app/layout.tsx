@@ -17,8 +17,13 @@ const display = Bodoni_Moda({ weight: ["400"], style: ["normal", "italic"], subs
 export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
   ...pageMetadata({ ...pages["/"], path: "/" }),
-  // favicon.ico (16/32/48 px) für Browser-Probes und Link-Vorschauen, SVG für moderne Browser
-  icons: { icon: [{ url: "/favicon.ico", sizes: "32x32" }, { url: "/favicon.svg", type: "image/svg+xml" }], apple: "/apple-touch-icon.png" },
+  // Monogramm-Icons (scripts/make-icons.mjs aus public/favicon.svg): ICO für Browser-Probes und Link-Vorschauen,
+  // SVG für moderne Browser, Apple-Icon 180 px, 192/512 px über das Manifest
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "32x32" }, { url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  manifest: "/manifest.webmanifest",
   robots: { index: true, follow: true, "max-image-preview": "large" },
   formatDetection: { telephone: true },
 };
