@@ -17,7 +17,8 @@ const display = Bodoni_Moda({ weight: ["400"], style: ["normal", "italic"], subs
 export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
   ...pageMetadata({ title: site.title, description: site.description, path: "/" }),
-  icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" }, apple: "/apple-touch-icon.png" },
+  // favicon.ico (16/32/48 px) für Browser-Probes und Link-Vorschauen, SVG für moderne Browser
+  icons: { icon: [{ url: "/favicon.ico", sizes: "32x32" }, { url: "/favicon.svg", type: "image/svg+xml" }], apple: "/apple-touch-icon.png" },
   robots: { index: true, follow: true, "max-image-preview": "large" },
   formatDetection: { telephone: true },
 };
