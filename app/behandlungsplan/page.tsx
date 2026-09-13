@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import PlanView from "@/components/plan/PlanView";
 import CtaBlock from "@/components/sections/CtaBlock";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Behandlungsplan: Sitzungen & Dauer | Schoch Cosmetic",
   description: "Persönlicher Behandlungsplan für die permanente MPL4-Haarentfernung: typische Anzahl Sitzungen, Abstände und Gesamtdauer pro Körperzone, mit Richtpreisen.",
-  alternates: { canonical: "/behandlungsplan/" },
-};
+  path: "/behandlungsplan/",
+});
 
 /**
  * Route /behandlungsplan — zwei Bildschirme:

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Instrument_Sans, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 import { site, contact } from "@/lib/site";
+import { pageMetadata } from "@/lib/metadata";
 import SmoothScroll from "@/components/motion/SmoothScroll";
 import { TransitionProvider } from "@/components/motion/Transition";
 import PageMotion from "@/components/motion/PageMotion";
@@ -15,14 +16,10 @@ const display = Bodoni_Moda({ weight: ["400"], style: ["normal", "italic"], subs
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
-  title: site.title,
-  description: site.description,
-  alternates: { canonical: "/" },
+  ...pageMetadata({ title: site.title, description: site.description, path: "/" }),
   icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" }, apple: "/apple-touch-icon.png" },
   robots: { index: true, follow: true, "max-image-preview": "large" },
   formatDetection: { telephone: true },
-  openGraph: { type: "website", locale: "de_CH", siteName: site.name, title: site.title, description: site.description, url: site.domain, images: [{ url: "/og.png", width: 1200, height: 630 }] },
-  twitter: { card: "summary_large_image", title: site.title, description: site.description, images: ["/og.png"] },
 };
 
 export const viewport: Viewport = { themeColor: "#fbf7f1", width: "device-width", initialScale: 1 };

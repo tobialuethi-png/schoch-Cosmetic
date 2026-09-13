@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import { impressum, type ImpressumRow } from "@/lib/site";
 import PlaceholderTag from "@/components/ui/PlaceholderTag";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Impressum | Schoch Cosmetic",
   description: "Impressum von Schoch Cosmetic, Andrea Schoch, Neukirch-Egnach: Kontaktadresse, Haftungsausschluss, Urheberrechte und Datenschutz.",
-  alternates: { canonical: "/impressum/" },
-  robots: { index: true, follow: true },
-};
+  path: "/impressum/",
+});
 
 /* Angabe-Zeile (Kontaktadresse): Label als ruhige Kapitälchen links, Wert in Serif rechts; Platzhalter mit data-placeholder */
 function Row({ r }: { r: ImpressumRow }) {
