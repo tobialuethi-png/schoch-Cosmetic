@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
+import { pages } from "@/lib/site";
+import { planJsonLd } from "@/lib/schema";
+import JsonLd from "@/components/JsonLd";
 import PlanView from "@/components/plan/PlanView";
 import CtaBlock from "@/components/sections/CtaBlock";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Behandlungsplan: Sitzungen & Dauer | Schoch Cosmetic",
-  description: "Persönlicher Behandlungsplan für die permanente MPL4-Haarentfernung: typische Anzahl Sitzungen, Abstände und Gesamtdauer pro Körperzone, mit Richtpreisen.",
-  path: "/behandlungsplan/",
-});
+export const metadata: Metadata = pageMetadata({ ...pages["/behandlungsplan/"], path: "/behandlungsplan/" });
 
 /**
  * Route /behandlungsplan — zwei Bildschirme:
@@ -18,6 +17,7 @@ export const metadata: Metadata = pageMetadata({
 export default function PlanPage() {
   return (
     <div className="relative z-[1]">
+      <JsonLd data={planJsonLd} />
       <PlanView />
       <CtaBlock />
     </div>

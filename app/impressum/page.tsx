@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
-import { impressum, type ImpressumRow } from "@/lib/site";
+import { impressum, pages, type ImpressumRow } from "@/lib/site";
+import { impressumJsonLd } from "@/lib/schema";
+import JsonLd from "@/components/JsonLd";
 import PlaceholderTag from "@/components/ui/PlaceholderTag";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Impressum | Schoch Cosmetic",
-  description: "Impressum von Schoch Cosmetic, Andrea Schoch, Neukirch-Egnach: Kontaktadresse, Haftungsausschluss, Urheberrechte und Datenschutz.",
-  path: "/impressum/",
-});
+export const metadata: Metadata = pageMetadata({ ...pages["/impressum/"], path: "/impressum/" });
 
 /* Angabe-Zeile (Kontaktadresse): Label als ruhige Kapitälchen links, Wert in Serif rechts; Platzhalter mit data-placeholder */
 function Row({ r }: { r: ImpressumRow }) {
@@ -37,6 +35,7 @@ function Row({ r }: { r: ImpressumRow }) {
 export default function ImpressumPage() {
   return (
     <div className="relative z-[1]">
+      <JsonLd data={impressumJsonLd} />
       <section className="bg-cream" aria-labelledby="impressum-title">
         <div className="shell pt-[calc(var(--nav-h)+var(--section-y)*0.5)] pb-[var(--section-y)] md:grid md:grid-cols-12 md:gap-10 md:py-0 lg:gap-16">
           {/* Stehende Spalte */}

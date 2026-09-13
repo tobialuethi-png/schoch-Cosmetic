@@ -19,6 +19,19 @@ export const site = {
     "Permanente, schmerzarme Haarentfernung mit der einzigartigen MPL4-Lichttechnologie, für dauerhaft glatte Haut. Persönlich bei Andrea Schoch in Neukirch-Egnach (TG).",
 } as const;
 
+/* Titel und Meta-Description je Route — Quelle für die Metadata (lib/metadata.ts) und die WebPage-Knoten im JSON-LD */
+export const pages = {
+  "/": { title: site.title, description: site.description },
+  "/behandlungsplan/": {
+    title: "Behandlungsplan: Sitzungen & Dauer | Schoch Cosmetic",
+    description: "Persönlicher Behandlungsplan für die permanente MPL4-Haarentfernung: typische Anzahl Sitzungen, Abstände und Gesamtdauer pro Körperzone, mit Richtpreisen.",
+  },
+  "/impressum/": {
+    title: "Impressum | Schoch Cosmetic",
+    description: "Impressum von Schoch Cosmetic, Andrea Schoch, Neukirch-Egnach: Kontaktadresse, Haftungsausschluss, Urheberrechte und Datenschutz.",
+  },
+} as const;
+
 export const contact = {
   phoneDisplay: "079 381 52 51",
   phoneHref: "tel:+41793815251",

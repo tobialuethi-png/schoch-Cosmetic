@@ -6,6 +6,8 @@ import Technology from "@/components/sections/Technology";
 import About from "@/components/sections/About";
 import Faq from "@/components/sections/Faq";
 import Contact from "@/components/sections/Contact";
+import JsonLd from "@/components/JsonLd";
+import { homeJsonLd } from "@/lib/schema";
 
 /**
  * Übergangs-Dramaturgie (jede Section ein Bildschirm; Tonfläche aussen = Fläche der vorherigen Section):
@@ -22,6 +24,7 @@ import Contact from "@/components/sections/Contact";
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={homeJsonLd} />
       {/* LCP-Kandidat: Hero-Bild vorladen (React hebt <link> in den <head>); srcset/sizes identisch zu <Picture> im Hero */}
       <link
         rel="preload"
