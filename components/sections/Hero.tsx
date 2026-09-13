@@ -133,13 +133,15 @@ export default function Hero() {
                   <div aria-hidden="true" className="hero-curtain absolute inset-0 z-[5] bg-cream" />
                 </div>
                 <div className="hero-circle gs-reveal absolute -bottom-1 right-2 h-[96px] w-[96px] overflow-hidden rounded-full ring-[5px] ring-cream shadow-[var(--shadow-soft)] md:-right-6 md:-bottom-6 md:h-[clamp(180px,12vw,280px)] md:w-[clamp(180px,12vw,280px)] md:ring-8 lg:-right-10">
+                  {/* Vorgeschnittenes Quadrat (scripts/optimize-images.mjs DERIVED, Lage wie zuvor object-position 55% 45%):
+                      gleicher Ausschnitt, aber ohne den unsichtbaren Hochformat-Überhang. sizes = Kreisgrösse: 96 px mobil,
+                      clamp(180px, 12vw, 280px) ab md — 12vw greift zwischen 1500 und 2333 px Viewport. */}
                   <Picture
-                    name="produkt"
+                    name="produkt-quadrat"
                     alt="MPL4-Handstück am Bein einer Kundin"
-                    sizes="180px"
+                    sizes="(min-width: 2334px) 280px, (min-width: 1500px) 12vw, (min-width: 768px) 180px, 96px"
                     className="block h-full w-full"
                     imgClassName="h-full w-full object-cover"
-                    position="55% 45%"
                   />
                 </div>
               </div>

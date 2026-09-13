@@ -177,6 +177,17 @@ export const images = {
     ],
     "fallback": "png",
     "alpha": true
+  },
+  "produkt-quadrat": {
+    "width": 576,
+    "height": 576,
+    "widths": [
+      192,
+      384,
+      576
+    ],
+    "fallback": "jpg",
+    "alpha": false
   }
 } as const satisfies Record<string, ImageMeta>;
 export type ImageName = keyof typeof images;
