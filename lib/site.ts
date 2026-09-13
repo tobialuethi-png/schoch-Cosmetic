@@ -14,21 +14,22 @@ export const site = {
   founder: "Andrea Schoch",
   since: 2003,
   region: "Neukirch-Egnach, Thurgau",
-  title: "Schoch Cosmetic | Permanente Haarentfernung mit MPL4-Technologie",
+  /* Titel/Description gemäss Content-Audit (findings/content.md, Abschnitt 4): Leistung + Region im Titel, 51 / 143 Zeichen */
+  title: "Permanente Haarentfernung Thurgau | Schoch Cosmetic",
   description:
-    "Permanente, schmerzarme Haarentfernung mit der einzigartigen MPL4-Lichttechnologie, für dauerhaft glatte Haut. Persönlich bei Andrea Schoch in Neukirch-Egnach (TG).",
+    "Permanente Haarentfernung mit MPL4-Licht in Neukirch-Egnach (TG): sanft, dauerhaft, für jeden Hautton. Persönlich bei Andrea Schoch, seit 2003.",
 } as const;
 
 /* Titel und Meta-Description je Route — Quelle für die Metadata (lib/metadata.ts) und die WebPage-Knoten im JSON-LD */
 export const pages = {
   "/": { title: site.title, description: site.description },
   "/behandlungsplan/": {
-    title: "Behandlungsplan: Sitzungen & Dauer | Schoch Cosmetic",
-    description: "Persönlicher Behandlungsplan für die permanente MPL4-Haarentfernung: typische Anzahl Sitzungen, Abstände und Gesamtdauer pro Körperzone, mit Richtpreisen.",
+    title: "Preise & Behandlungsplan Haarentfernung | Schoch",
+    description: "Preise, Sitzungen und Dauer pro Körperzone für die MPL4-Haarentfernung bei Schoch Cosmetic in Neukirch-Egnach (TG). Unverbindlich beraten lassen.",
   },
   "/impressum/": {
-    title: "Impressum | Schoch Cosmetic",
-    description: "Impressum von Schoch Cosmetic, Andrea Schoch, Neukirch-Egnach: Kontaktadresse, Haftungsausschluss, Urheberrechte und Datenschutz.",
+    title: "Impressum & Datenschutz | Schoch Cosmetic",
+    description: "Impressum von Schoch Cosmetic in Neukirch-Egnach (TG): Kontaktadresse von Andrea Schoch, Haftungsausschluss, Urheberrechte und Datenschutz (DSG).",
   },
 } as const;
 
