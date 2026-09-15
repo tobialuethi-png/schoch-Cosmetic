@@ -20,14 +20,8 @@ export const Mail = ({ className, size = 20 }: P) => (
 export const MapPin = ({ className, size = 20 }: P) => (
   <svg {...base(size)} className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
 );
-export const Plus = ({ className, size = 20 }: P) => (
-  <svg {...base(size)} className={className}><path d="M5 12h14M12 5v14" /></svg>
-);
 export const X = ({ className, size = 22 }: P) => (
   <svg {...base(size)} className={className}><path d="M18 6 6 18M6 6l12 12" /></svg>
-);
-export const Clock = ({ className, size = 20 }: P) => (
-  <svg {...base(size)} className={className}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
 );
 export const Check = ({ className, size = 16 }: P) => (
   <svg {...base(size)} className={className}><path d="M20 6 9 17l-5-5" /></svg>

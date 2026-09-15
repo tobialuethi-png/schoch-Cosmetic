@@ -120,12 +120,6 @@ button, [role="button"] { user-select: none; }
 /* ------------------------------------------------------------ Type scale
    Referenz-Konsens (chic 118/74 · ever 176/80 · clinique7 149/107 · houston 64):
    Headlines ≥ 5× Fliesstext, Fliesstext 17–19 px, wenige Worte pro Bildschirm. */
-.t-display {
-  font-family: var(--font-serif);
-  font-size: clamp(44px, 2.4rem + 3.7vw, 96px);
-  line-height: 0.96;
-  letter-spacing: -0.03em;
-}
 /* Grösste Stufe: zentrierte Statements / Schluss-CTA (≈ 113 px bei 1440) */
 .t-title {
   font-family: var(--font-serif);
@@ -147,13 +141,6 @@ button, [role="button"] { user-select: none; }
   line-height: 1.08;
   letter-spacing: -0.02em;
 }
-/* Kapitel-Titel in gepinnten Szenen (≈ 76 px bei 1440) — eine Stufe unter t-h2, damit fünf Kapitel in einen Bildschirm passen */
-.t-chapter {
-  font-family: var(--font-serif);
-  font-size: clamp(38px, 1.6rem + 3.5vw, 96px);
-  line-height: 1.0;
-  letter-spacing: -0.02em;
-}
 .t-h3 {
   font-family: var(--font-serif);
   font-size: clamp(24px, 1.2rem + 1.1vw, 40px);
@@ -166,14 +153,6 @@ button, [role="button"] { user-select: none; }
   font-size: clamp(72px, 3rem + 8vw, 220px);
   line-height: 0.9;
   letter-spacing: -0.04em;
-}
-/* Geisterwort im Hintergrund (ever «BEAUTY», clinique7 «Sculpted») */
-.t-ghost {
-  font-family: var(--font-serif);
-  font-size: clamp(120px, 28vw, 520px);
-  line-height: 0.8;
-  letter-spacing: -0.05em;
-  color: color-mix(in oklab, var(--color-ink) 6%, transparent);
 }
 .t-lead { font-size: clamp(18px, 1rem + 0.5vw, 24px); line-height: 1.5; }
 .t-body { font-size: clamp(16px, 0.95rem + 0.25vw, 19px); line-height: 1.6; }
@@ -201,15 +180,10 @@ button, [role="button"] { user-select: none; }
 }
 .btn:active { transform: scale(0.97); }
 .btn svg { width: 16px; height: 16px; transition: transform 300ms var(--ease-micro); }
-/* Kompakte Buttons: Ghost = Sekundär (Nav, Über mich, WhatsApp), Primary = Bottom-Bar mobil (Cocoa wie btn-lux),
-   Ink = Filter-Zustand (Behandlungsplan). Primär-CTAs im Inhalt sind immer .btn-lux */
-.btn-primary { background: linear-gradient(180deg, #3b2b22 0%, var(--color-cocoa) 100%); color: var(--color-cream); }
-.btn-ink { background: var(--color-ink); color: var(--color-cream); }
+/* Kompakte Buttons: Ghost = Sekundär (Nav, Über mich, WhatsApp). Primär-CTAs im Inhalt sind immer .btn-lux */
 .btn-ghost { background: transparent; color: var(--color-ink); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-ink) 22%, transparent); }
 .btn-ghost--light { color: var(--color-cream); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-cream) 32%, transparent); }
 @media (hover: hover) {
-  .btn-primary:hover { background: var(--color-cocoa); }
-  .btn-ink:hover { background: #000; }
   .btn-ghost:hover { background: color-mix(in oklab, var(--color-ink) 6%, transparent); }
   .btn-ghost--light:hover { background: color-mix(in oklab, var(--color-cream) 10%, transparent); }
   .btn:hover svg { transform: translateX(3px); }
@@ -278,12 +252,6 @@ html.lite .gs-reveal, html.lite .hero-line, html.lite [data-reveal], html.lite [
 /* Overlay menu + modals */
 .scroll-lock { overflow: hidden; }
 .overscroll-contain { overscroll-behavior: contain; }
-
-/* Marquee */
-.marquee-track { display: flex; width: max-content; }
-
-/* Far sections: Rendering überspringen bis in der Nähe */
-.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 800px; }
 }
 
 /* ============================================================
@@ -335,8 +303,6 @@ html.lite .deck-wash, .no-js .deck-wash { display: none; }
 .svc-title { font-size: min(clamp(42px, 1.7rem + 4.4vw, 112px), 19cqi); }
 /* Behandlungsplan-H1 in der stehenden Spalte: «Behandlungsplan.» (6.23 em) bleibt eine Zeile */
 .plan-title { font-size: min(clamp(42px, 1.7rem + 4.4vw, 112px), 15.8cqi); }
-/* «Behandlungen?» (5.32 em) bleibt eine Zeile in der halben Spalte */
-.why-title { font-size: min(clamp(42px, 1.7rem + 4.4vw, 112px), 18.5cqi); }
 @media (hover: hover) { .plan-row:hover { background: color-mix(in oklab, var(--color-ink) 3.5%, transparent); } }/* Kurze Desktop-Viewports: Stack-Karte muss in einen Bildschirm passen (sticky, Rest würde verdeckt) */
 @media (min-width: 1024px) and (max-height: 820px) {
   .stack-card .t-h2 { font-size: clamp(40px, 1.3rem + 3.4vw, 84px); }

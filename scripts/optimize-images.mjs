@@ -2,7 +2,7 @@
 /**
  * Build-Zeit-Bildoptimierung für den statischen Export (Cloudflare Pages).
  * Quelle: assets/photos/* + assets/logo-schoch-cosmetic.png
- * Ziel:   public/img/<name>-<w>.{avif,webp,jpg|png} + lib/images.generated.ts (Manifest)
+ * Ziel:   public/img/<name>-<w>.{avif,webp,jpg|png} + lib/images.generated.ts (Manifest) + .image-cache.json (Build-Cache)
  * Kein Upscaling: Breiten > Quellbreite werden übersprungen, die Quellbreite wird ergänzt —
  * Ausnahme PRESETS.upscaleTo (Lanczos3 + Nachschärfen) für Quellen, die kleiner sind als ihre Darstellung (Retina).
  * Voll-opake PNGs (Alpha überall 255) werden als JPEG behandelt (kein 1.4-MB-PNG-Fallback).
@@ -21,7 +21,7 @@ const SRC_DIRS = [path.join(ROOT, "assets", "photos")];
 const EXTRA = [path.join(ROOT, "assets", "logo-schoch-cosmetic.png"), path.join(ROOT, "assets", "logo-sc.png")]; // logo-sc: SC-Monogramm (Ausschnitt aus dem Original-Logo) als Masken-Quelle für .sc-mark
 const OUT = path.join(ROOT, "public", "img");
 const MANIFEST = path.join(ROOT, "lib", "images.generated.ts");
-const CACHE = path.join(OUT, ".cache.json");
+const CACHE = path.join(ROOT, ".image-cache.json"); // ausserhalb von public/: die Cache-Datei gehört nicht in den Export
 const WIDTHS = [480, 768, 1200, 1600, 2400];
 const QUALITY = { avif: 55, webp: 74, jpeg: 80 };
 const MAX_SOURCE_W = 2400; // produkt.jpg ist 4934 px breit — nie grösser als nötig dekodieren

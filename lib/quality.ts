@@ -20,7 +20,6 @@ let booted = false;
 
 export const getMode = () => mode;
 export const getSmooth = () => smooth;
-export const isCpuTier = () => cpu;
 export const subscribe = (fn: () => void) => { subs.add(fn); return () => { subs.delete(fn); }; };
 /** Abschaltungen für den Lite-Mode (reduced motion) */
 export const onLite = (fn: () => void) => { liteTeardowns.push(fn); };

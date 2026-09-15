@@ -1,16 +1,6 @@
 /* AUTO-GENERIERT von scripts/optimize-images.mjs — nicht von Hand bearbeiten */
 export type ImageMeta = { width: number; height: number; widths: number[]; fallback: "jpg" | "png"; alpha: boolean };
 export const images = {
-  "bild11": {
-    "width": 778,
-    "height": 944,
-    "widths": [
-      480,
-      778
-    ],
-    "fallback": "jpg",
-    "alpha": false
-  },
   "erstesBild": {
     "width": 1200,
     "height": 1600,
@@ -22,29 +12,7 @@ export const images = {
     "fallback": "jpg",
     "alpha": false
   },
-  "foto1": {
-    "width": 1200,
-    "height": 1600,
-    "widths": [
-      480,
-      768,
-      1200
-    ],
-    "fallback": "jpg",
-    "alpha": false
-  },
   "foto2": {
-    "width": 1200,
-    "height": 1600,
-    "widths": [
-      480,
-      768,
-      1200
-    ],
-    "fallback": "jpg",
-    "alpha": false
-  },
-  "foto3": {
     "width": 1200,
     "height": 1600,
     "widths": [
@@ -78,17 +46,6 @@ export const images = {
     "alpha": false
   },
   "foto7": {
-    "width": 1200,
-    "height": 1600,
-    "widths": [
-      480,
-      768,
-      1200
-    ],
-    "fallback": "jpg",
-    "alpha": false
-  },
-  "foto8": {
     "width": 1200,
     "height": 1600,
     "widths": [

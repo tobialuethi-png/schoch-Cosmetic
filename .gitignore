@@ -4,6 +4,7 @@ out
 next-env.d.ts
 *.tsbuildinfo
 public/img
+.image-cache.json
 .DS_Store
 reports/refs/*/vp-*
 reports/refs/*/motion
